@@ -4,6 +4,7 @@ import React from 'react'
 import configPromise from '@payload-config'
 import { importMap } from './admin/importMap.js'
 import '@payloadcms/next/css'
+import '../../styles/custom-admin.css'
 
 
 const serverFunction: ServerFunctionClient = async function (args) {

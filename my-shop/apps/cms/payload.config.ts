@@ -9,6 +9,28 @@ import { VendureProductBlock } from '@/blocks/VendureProduct'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const triggerRevalidate = (tag: string) => async () => {
+  try {
+    const revalidateUrl = process.env.STOREFRONT_REVALIDATE_URL || 'http://storefront:3001/api/revalidate';
+    const secret = process.env.REVALIDATION_SECRET || 'e1EX6Yeu0fjJ6X2qweSav50VjOxkNPFlMEeXEGvj7Dg=';
+    const res = await fetch(revalidateUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${secret}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tags: [tag] }),
+    });
+    if (res.ok) {
+      console.log(`Successfully triggered ${tag} cache revalidation`);
+    } else {
+      console.error(`Failed to trigger ${tag} cache revalidation: ${res.statusText}`);
+    }
+  } catch (err) {
+    console.error(`Failed to trigger ${tag} cache revalidation:`, err);
+  }
+}
+
 export default buildConfig({
   admin: {
     user: 'users',
@@ -112,6 +134,27 @@ export default buildConfig({
       slug: 'pages',
       access: {
         read: () => true,
+      },
+      hooks: {
+        afterChange: [
+          async ({ doc }) => {
+            try {
+              const revalidateUrl = process.env.STOREFRONT_REVALIDATE_URL || 'http://storefront:3001/api/revalidate';
+              const secret = process.env.REVALIDATION_SECRET || 'e1EX6Yeu0fjJ6X2qweSav50VjOxkNPFlMEeXEGvj7Dg=';
+              await fetch(revalidateUrl, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${secret}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tags: ['pages', `page-${doc.slug}`] }),
+              });
+              console.log(`Successfully triggered page-${doc.slug} cache revalidation`);
+            } catch (err) {
+              console.error(`Failed to trigger page-${doc.slug} cache revalidation:`, err);
+            }
+          }
+        ]
       },
       admin: {
         useAsTitle: 'title',
@@ -222,6 +265,9 @@ export default buildConfig({
       access: {
         read: () => true,
       },
+      hooks: {
+        afterChange: [triggerRevalidate('navigation')],
+      },
       fields: [
         {
           name: 'topAnnouncement',
@@ -249,6 +295,9 @@ export default buildConfig({
       slug: 'footer',
       access: {
         read: () => true,
+      },
+      hooks: {
+        afterChange: [triggerRevalidate('footer')],
       },
       fields: [
         {

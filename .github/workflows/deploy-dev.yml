@@ -121,5 +121,8 @@ jobs:
             # Bring up the rest of the services (postgres, backend server, worker, cms)
             REGISTRY_PREFIX=ghcr.io/${{ github.repository_owner }} IMAGE_TAG=dev docker compose up -d
 
+            # Reload Nginx proxy again to detect updated IPs of restarted services
+            docker exec shop-nginx-proxy nginx -s reload || true
+
             # Clean up old dangling images to free disk space
             docker image prune -af
