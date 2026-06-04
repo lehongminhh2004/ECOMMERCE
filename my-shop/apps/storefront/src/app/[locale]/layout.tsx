@@ -12,6 +12,7 @@ import {Navbar} from "@/components/layout/navbar";
 import {Footer} from "@/components/layout/footer";
 import {ThemeProvider} from "@/components/providers/theme-provider";
 import {SITE_NAME, SITE_URL} from "@/lib/metadata";
+import {Suspense} from "react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -94,9 +95,11 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
             >
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>
-                        <Navbar />
+                        <Suspense fallback={<div className="h-16 border-b bg-background/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50" />}>
+                            <Navbar locale={locale} />
+                        </Suspense>
                         {children}
-                        <Footer/>
+                        <Footer locale={locale} />
                         <Toaster/>
                     </ThemeProvider>
                 </NextIntlClientProvider>

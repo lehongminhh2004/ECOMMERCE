@@ -52,7 +52,7 @@ export async function generateMetadata({
     const locale = await getRouteLocale();
     const currencyCode = await getActiveCurrencyCode();
     const result = await getProductData(slug, currencyCode);
-    const product = result.data.product;
+    const product = result.data?.product;
 
     const t = await getTranslations({locale, namespace: 'Product'});
 
@@ -103,7 +103,7 @@ export default async function ProductDetailPage({params, searchParams}: PageProp
 
     const result = await getProductData(slug, currencyCode);
 
-    const product = result.data.product;
+    const product = result.data?.product;
 
     if (!product) {
         notFound();

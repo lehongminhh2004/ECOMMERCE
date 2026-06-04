@@ -79,37 +79,44 @@ export async function query<TResult, TVariables>(
         url.searchParams.set('currencyCode', currencyCode);
     }
 
-    const response = await fetch(url.toString(), {
-        ...fetchOptions,
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-            query: print(document),
-            variables: variables || {},
-        }),
-        ...(tags && {next: {tags}}),
-    });
+    try {
+        const response = await fetch(url.toString(), {
+            ...fetchOptions,
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                query: print(document),
+                variables: variables || {},
+            }),
+            ...(tags && {next: {tags}}),
+        });
 
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result: VendureResponse<TResult> = await response.json();
+
+        if (result.errors) {
+            throw new Error(result.errors.map(e => e.message).join(', '));
+        }
+
+        if (!result.data) {
+            throw new Error('No data returned from Vendure API');
+        }
+
+        const newToken = extractAuthToken(response.headers);
+
+        return {
+            data: result.data,
+            ...(newToken && {token: newToken}),
+        };
+    } catch (error) {
+        console.error('Vendure API query failed:', error);
+        return {
+            data: {} as TResult
+        };
     }
-
-    const result: VendureResponse<TResult> = await response.json();
-
-    if (result.errors) {
-        throw new Error(result.errors.map(e => e.message).join(', '));
-    }
-
-    if (!result.data) {
-        throw new Error('No data returned from Vendure API');
-    }
-
-    const newToken = extractAuthToken(response.headers);
-
-    return {
-        data: result.data,
-        ...(newToken && {token: newToken}),
-    };
 }
 
 /**

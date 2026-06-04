@@ -28,7 +28,7 @@ async function getFeaturedCollectionProducts(currencyCode: string) {
         }
     }, {languageCode: locale, currencyCode});
 
-    return result.data.search.items;
+    return result.data?.search?.items || [];
 }
 
 

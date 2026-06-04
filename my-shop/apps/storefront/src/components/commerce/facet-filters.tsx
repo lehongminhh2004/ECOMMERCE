@@ -87,7 +87,7 @@ function FilterContent({
 export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
     const t = useTranslations('Filters');
     const result = use(productDataPromise);
-    const searchResult = result.data.search;
+    const searchResult = result?.data?.search;
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -100,7 +100,7 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
         values: Array<{ id: string; name: string; count: number }>;
     }
 
-    const facetGroups = searchResult.facetValues.reduce((acc: Record<string, FacetGroup>, item) => {
+    const facetGroups = searchResult?.facetValues?.reduce((acc: Record<string, FacetGroup>, item) => {
         const facetName = item.facetValue.facet.name;
         if (!acc[facetName]) {
             acc[facetName] = {
@@ -115,7 +115,7 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
             count: item.count
         });
         return acc;
-    }, {});
+    }, {}) ?? {};
 
     const selectedFacets = searchParams.getAll('facets');
 
