@@ -1,9 +1,9 @@
-import {getRouteLocale} from '@/i18n/server';
-import {cacheLife, cacheTag} from 'next/cache';
-import {getTopCollections} from '@/lib/vendure/cached';
+import { getRouteLocale } from '@/i18n/server';
+import { cacheLife, cacheTag } from 'next/cache';
+import { getTopCollections } from '@/lib/vendure/cached';
 import Image from "next/image";
-import {NavigationLink} from '@/components/shared/navigation-link';
-import {getTranslations} from 'next-intl/server';
+import { NavigationLink } from '@/components/shared/navigation-link';
+import { getTranslations } from 'next-intl/server';
 
 
 const COPYRIGHT_YEAR = 2026;
@@ -12,7 +12,7 @@ async function Copyright({ locale }: { locale: string }) {
     'use cache'
     cacheLife('days');
 
-    const t = await getTranslations({locale, namespace: 'Footer'});
+    const t = await getTranslations({ locale, namespace: 'Footer' });
 
     return (
         <div>
@@ -27,7 +27,7 @@ export async function Footer({ locale }: { locale: string }) {
 
     cacheTag(`footer-${locale}`);
 
-    const t = await getTranslations({locale, namespace: 'Footer'});
+    const t = await getTranslations({ locale, namespace: 'Footer' });
     const collections = await getTopCollections(locale);
 
     return (
@@ -129,7 +129,7 @@ export async function Footer({ locale }: { locale: string }) {
                 {/* Bottom Section */}
                 <div
                     className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-                    <Copyright locale={locale}/>
+                    <Copyright locale={locale} />
                     <div className="flex items-center gap-2">
                         <span>{t('poweredBy')}</span>
                         <a
