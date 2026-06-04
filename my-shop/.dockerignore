@@ -1,0 +1,32 @@
+# Node
+node_modules
+**/node_modules
+npm-debug.log
+yarn-error.log
+
+# Next.js build and cache
+.next
+**/.next
+cache
+**/cache
+
+# TypeScript build outputs
+dist
+**/dist
+
+# Git
+.git
+.github
+.gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environments
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+**/.env*

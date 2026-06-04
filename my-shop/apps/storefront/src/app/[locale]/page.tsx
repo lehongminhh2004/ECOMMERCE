@@ -7,11 +7,30 @@ import {SITE_NAME, SITE_URL, buildCanonicalUrl} from "@/lib/metadata";
 import {BadgeCheck, Tag, Zap} from "lucide-react";
 import {getTranslations} from 'next-intl/server';
 import {toOgLocale} from '@/i18n/locale-utils';
+import { getPageBySlug } from "@/lib/payload/api";
+import { RenderBlocks } from "@/components/shared/render-blocks";
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Home'});
     const ogLocale = toOgLocale(locale);
+
+    // Try to get page metadata from CMS
+    const payloadPage = await getPageBySlug('home');
+    if (payloadPage) {
+        return {
+            title: `${SITE_NAME} - ${payloadPage.title}`,
+            alternates: {
+                canonical: buildCanonicalUrl("/"),
+            },
+            openGraph: {
+                title: `${SITE_NAME} - ${payloadPage.title}`,
+                type: "website",
+                locale: ogLocale,
+                url: SITE_URL,
+            },
+        };
+    }
 
     return {
         title: {
@@ -37,7 +56,7 @@ const featureKeys = [
     {icon: Zap, key: 'fastDelivery'},
 ] as const;
 
-export default async function Home() {
+async function StaticHomepage() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Home'});
 
@@ -70,5 +89,45 @@ export default async function Home() {
                 </div>
             </section>
         </div>
+    );
+}
+
+async function HomepageContent() {
+    // Try to load CMS homepage content
+    const payloadPage = await getPageBySlug('home');
+    if (payloadPage && payloadPage.layout) {
+        return (
+            <div className="min-h-screen container mx-auto px-4 py-8">
+                <RenderBlocks blocks={payloadPage.layout} />
+            </div>
+        );
+    }
+
+    return <StaticHomepage />;
+}
+
+function HomepageSkeleton() {
+    return (
+        <div className="min-h-screen container mx-auto px-4 py-8 space-y-8 animate-pulse">
+            <div className="h-64 bg-muted rounded-3xl w-full" />
+            <div className="h-10 bg-muted rounded w-48" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="space-y-4">
+                        <div className="aspect-square bg-muted rounded-xl" />
+                        <div className="h-4 bg-muted rounded w-3/4" />
+                        <div className="h-4 bg-muted rounded w-1/2" />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export default function Home() {
+    return (
+        <Suspense fallback={<HomepageSkeleton />}>
+            <HomepageContent />
+        </Suspense>
     );
 }

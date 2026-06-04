@@ -42,8 +42,7 @@ export const config: VendureConfig = {
     dbConnectionOptions: {
         type: 'postgres',
         // See the README.md "Migrations" section for an explanation of
-        // the `synchronize` and `migrations` options.
-        synchronize: false,
+        synchronize: process.env.DB_SYNCHRONIZE === 'true',
         migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
         logging: false,
         database: process.env.DB_NAME,
@@ -67,7 +66,7 @@ export const config: VendureConfig = {
             // For local dev, the correct value for assetUrlPrefix should
             // be guessed correctly, but for production it will usually need
             // to be set manually to match your production url.
-            assetUrlPrefix: IS_DEV ? undefined : 'https://www.my-shop.com/assets/',
+            assetUrlPrefix: process.env.ASSET_URL_PREFIX || undefined,
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),

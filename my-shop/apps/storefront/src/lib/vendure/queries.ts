@@ -436,3 +436,27 @@ export const GetCollectionProductsQuery = graphql(`
         }
     }
 `, [ProductCardFragment]);
+
+export const GetProductDetailByIdQuery = graphql(`
+    query GetProductDetailById($id: ID!) {
+        product(id: $id) {
+            id
+            name
+            description
+            slug
+            assets {
+                id
+                preview
+                source
+            }
+            variants {
+                id
+                name
+                sku
+                priceWithTax
+                stockLevel
+            }
+        }
+    }
+`);
+

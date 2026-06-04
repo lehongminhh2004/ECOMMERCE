@@ -20,10 +20,10 @@ export async function ProductGrid({productDataPromise, currentPage, take}: Produ
     const t = await getTranslations({locale, namespace: 'Product'});
     const result = await productDataPromise;
 
-    const searchResult = result.data.search;
-    const totalPages = Math.ceil(searchResult.totalItems / take);
+    const searchResult = result.data?.search;
+    const totalPages = searchResult ? Math.ceil(searchResult.totalItems / take) : 0;
 
-    if (!searchResult.items.length) {
+    if (!searchResult || !searchResult.items.length) {
         return (
             <div className="text-center py-12">
                 <p className="text-muted-foreground">{t('noProductsFound')}</p>

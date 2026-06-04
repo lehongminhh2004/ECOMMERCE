@@ -4,6 +4,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
+    output: 'standalone',
     cacheComponents: true,
     images: {
         // This is necessary to display images from your local Vendure instance
@@ -17,6 +18,12 @@ const nextConfig: NextConfig = {
             },
             {
                 hostname: 'localhost'
+            },
+            {
+                hostname: 'vendure_server'
+            },
+            {
+                hostname: 'payload_cms'
             }
         ],
     },
