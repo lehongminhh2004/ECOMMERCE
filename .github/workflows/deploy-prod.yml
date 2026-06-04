@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: actions/docker-setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@v3
@@ -86,36 +86,36 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             cd ${{ secrets.PROD_DEPLOY_PATH }}
-            
+
             # Authenticate Docker client with GHCR
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
+
             # Ensure external database volume exists
             docker volume create server_postgres_db_data || true
-            
+
             # Pull latest production images
             REGISTRY_PREFIX=ghcr.io/${{ github.repository_owner }} IMAGE_TAG=latest docker compose pull
-            
+
             # Run database migrations as a single-instance transaction
             REGISTRY_PREFIX=ghcr.io/${{ github.repository_owner }} IMAGE_TAG=latest docker compose run --rm vendure_server node apps/server/dist/index.js --run-migrations
-            
+
             # Scale up storefront for rolling update
             REGISTRY_PREFIX=ghcr.io/${{ github.repository_owner }} IMAGE_TAG=latest docker compose up -d --no-recreate --scale storefront=2
-            
+
             # Reload Nginx proxy to detect the new storefront container IP
             docker exec shop-nginx-proxy nginx -s reload || true
-            
+
             # Wait for the new container to start handling traffic
             sleep 15
-            
+
             # Scale back down to remove the old container
             REGISTRY_PREFIX=ghcr.io/${{ github.repository_owner }} IMAGE_TAG=latest docker compose up -d --scale storefront=1
-            
+
             # Reload Nginx proxy again to remove old IP routing
             docker exec shop-nginx-proxy nginx -s reload || true
-            
+
             # Bring up the rest of the services (postgres, backend server, worker, cms)
             REGISTRY_PREFIX=ghcr.io/${{ github.repository_owner }} IMAGE_TAG=latest docker compose up -d
-            
+
             # Clean up old dangling images to free disk space
             docker image prune -af
