@@ -72,7 +72,7 @@ export default async function BlogIndexPage() {
                     {post.author && (
                       <div className="flex items-center gap-1">
                         <User className="size-3.5" />
-                        <span>{post.author.name}</span>
+                        <span>{(post.author as any).name || (post.author as any).email || 'Admin'}</span>
                       </div>
                     )}
                     <div className="flex items-center gap-1">

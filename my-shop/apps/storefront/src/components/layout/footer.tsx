@@ -63,6 +63,23 @@ function getSocialIcon(platform: string) {
     }
 }
 
+const cmsLinkTranslations: Record<string, string> = {
+    'Shop': 'Cửa hàng',
+    'Deals': 'Ưu đãi',
+    'Summer Sale': 'Khuyến mãi hè',
+    'Terms of Service': 'Điều khoản dịch vụ',
+    'Privacy Policy': 'Chính sách bảo mật',
+    'About Us': 'Giới thiệu',
+    'Contact': 'Liên hệ',
+};
+
+function getCmsLinkLabel(label: string, locale: string) {
+    if (locale === 'vi') {
+        return cmsLinkTranslations[label] || label;
+    }
+    return label;
+}
+
 export async function Footer({ locale }: { locale: string }) {
     'use cache'
     cacheLife('days');
@@ -165,7 +182,7 @@ export async function Footer({ locale }: { locale: string }) {
                                             rel={link.url.startsWith('http') ? 'noopener noreferrer' : undefined}
                                             className="hover:text-foreground transition-colors"
                                         >
-                                            {link.label}
+                                            {getCmsLinkLabel(link.label, locale)}
                                         </a>
                                     </li>
                                 ))

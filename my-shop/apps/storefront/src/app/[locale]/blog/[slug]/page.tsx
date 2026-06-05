@@ -88,9 +88,9 @@ export default async function BlogPostPage({ params }: PostPageProps) {
               {post.author && (
                 <div className="flex items-center gap-2">
                   <div className="size-8 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center font-bold text-neutral-700 dark:text-neutral-300">
-                    {post.author.name[0]}
+                    {((post.author as any).name || (post.author as any).email || 'A')[0].toUpperCase()}
                   </div>
-                  <span className="font-medium text-neutral-800 dark:text-neutral-200">{post.author.name}</span>
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">{(post.author as any).name || (post.author as any).email || 'Admin'}</span>
                 </div>
               )}
               <div className="flex items-center gap-1.5">

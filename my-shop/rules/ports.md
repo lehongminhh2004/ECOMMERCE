@@ -1,30 +1,30 @@
 # Network and Port Mapping Rules
 
-To prevent port conflicts and ensure correct routing inside the monorepo, developers must strictly adhere to the following port mapping conventions.
+## Local Development Ports
 
-## Port Map
+| Port | Service | Description |
+| :--- | :--- | :--- |
+| `3000` | Vendure Server | Dashboard, Admin API and Shop API |
+| `3001` | Storefront | Next.js customer-facing app |
+| `3002` | Payload CMS | CMS admin and REST API |
+| `5173` | Vendure Dashboard Dev | Vite hot reload for dashboard development only |
 
-| Port | Service | Description | Scope |
-| :--- | :--- | :--- | :--- |
-| **`3000`** | Vendure Server | Node.js backend & API endpoints | Dev / Prod |
-| **`3001`** | Next.js Storefront | Public storefront application | Dev / Prod |
-| **`3002`** | Payload CMS | Content CMS application & admin UI | Dev / Prod |
-| **`5173`** | Vite Dev Server | Vendure admin dashboard hot-reload | Dev Only |
-| **`6543`** | PostgreSQL DB | Postgres database for Vendure (Docker) | Dev / Prod |
+## Local URLs
 
-## Key Constraints
+- Vendure Dashboard: `http://localhost:3000/dashboard`
+- Vendure Shop API: `http://localhost:3000/shop-api`
+- Vendure Admin API: `http://localhost:3000/admin-api`
+- Storefront: `http://localhost:3001`
+- Payload Admin: `http://localhost:3002/admin`
+- Payload API: `http://localhost:3002/api`
 
-1. **Docker Compose database port:**
-   - PostgreSQL must map host port `6543` to container port `5432`.
-   - Host port `3306` (MariaDB/MySQL) must **not** be mapped or bound automatically unless local database instances are stopped first, to avoid port conflicts.
-2. **API Endpoint Routing (Browser vs Server-Side in Docker):**
-   - **Client-Side/Browser Requests:** Must communicate with APIs via public hostnames:
-     - Vendure API: `http://localhost:3000/shop-api`
-     - Payload CMS API: `http://localhost:3002/api`
-   - **Server-Side Requests (SSR / ISR / RSC within Docker Network):** Must communicate via Docker network service names:
-     - Vendure API: `http://vendure_server:3000/shop-api`
-     - Payload CMS API: `http://payload_cms:3002/api`
-3. **No Duplicate Vite Dashboards:**
-   - Port `5173` is for hot-reloading development dashboard only.
-   - Port `3000/dashboard` uses the static build.
+## Cloud URL Rules
 
+- Storefront server-side code uses `VENDURE_SHOP_API_URL` and `PAYLOAD_API_URL`.
+- Browser/client-facing values use `NEXT_PUBLIC_VENDURE_SHOP_API_URL` and `NEXT_PUBLIC_PAYLOAD_API_URL`.
+- Do not use Docker service names such as `vendure_server` or `payload_cms` in the active Vercel + Render deployment path.
+
+## Constraints
+
+- Do not bind another service to ports `3000`, `3001`, `3002`, or `5173`.
+- Do not assume a local Docker Postgres port. Use local env or a cloud Postgres connection string.

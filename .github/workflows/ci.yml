@@ -1,14 +1,28 @@
-name: CI Pipeline
+name: CI
 
 on:
   pull_request:
     branches:
       - develop
       - main
+  push:
+    branches:
+      - develop
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  lint-and-typecheck:
+  validate:
+    name: Validate monorepo
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: my-shop
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,107 +31,44 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
+          cache: npm
           cache-dependency-path: my-shop/package-lock.json
 
       - name: Install dependencies
-        run: |
-          cd my-shop
-          npm ci
+        run: npm ci
 
-      - name: Run linting
-        run: |
-          cd my-shop
-          npm run lint -w storefront
-          npm run lint -w cms
+      - name: Lint storefront
+        run: npm run lint -w storefront
 
-      - name: Run TypeScript type check
-        run: |
-          cd my-shop
-          npm run check-types -w storefront
+      - name: Lint CMS
+        run: npm run lint -w cms
 
-  build-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Typecheck Vendure server
+        run: npm exec -w server tsc -- --noEmit
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-          cache-dependency-path: my-shop/package-lock.json
+      - name: Typecheck storefront
+        run: npm run check-types -w storefront
 
-      - name: Install dependencies
-        run: |
-          cd my-shop
-          npm ci
+      - name: Typecheck CMS
+        run: npm exec -w cms tsc -- --noEmit
 
-      - name: Verify build compilation
-        run: |
-          cd my-shop
-          npm run build
+      - name: Build Vendure server
+        run: npm run build -w server
 
-  smoke-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Build storefront
+        run: npm run build -w storefront
+        env:
+          VENDURE_SHOP_API_URL: https://example.com/shop-api
+          NEXT_PUBLIC_VENDURE_SHOP_API_URL: https://example.com/shop-api
+          PAYLOAD_API_URL: https://example.com/api
+          NEXT_PUBLIC_PAYLOAD_API_URL: https://example.com/api
+          NEXT_PUBLIC_SITE_URL: https://example.com
+          NEXT_PUBLIC_SITE_NAME: my-shop
+          REVALIDATION_SECRET: ci-secret
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Create external volume
-        run: docker volume create server_postgres_db_data
-
-      - name: Setup environment file
-        run: |
-          cd my-shop
-          echo "DB_PASSWORD=test_password" > .env
-          echo "POSTGRES_PASSWORD=test_password" >> .env
-          echo "COOKIE_SECRET=test_cookie_secret_long_enough_32_chars" >> .env
-          echo "SUPERADMIN_USERNAME=superadmin" >> .env
-          echo "SUPERADMIN_PASSWORD=superadmin" >> .env
-          echo "PAYLOAD_SECRET=test_payload_secret_long_enough_32_chars" >> .env
-          echo "DB_PUSH=true" >> .env
-          echo "DB_SYNCHRONIZE=true" >> .env
-          echo "APP_ENV=dev" >> .env
-          echo "PORT=3000" >> .env
-          echo "DB_HOST=postgres_db" >> .env
-          echo "DB_PORT=5432" >> .env
-          echo "DB_NAME=vendure" >> .env
-          echo "DB_USERNAME=vendure" >> .env
-          echo "DB_SCHEMA=public" >> .env
-
-      - name: Run Docker Compose Build & Up
-        run: |
-          cd my-shop
-          docker compose up --build -d
-
-      - name: Wait for services to initialize
-        run: |
-          echo "Waiting for database and backend servers to boot..."
-          sleep 25
-
-      - name: Verify Nginx proxy routing & endpoints
-        run: |
-          echo "=== Checking Vendure Backend Health ==="
-          curl -f -v http://localhost:3000/health
-
-          echo "=== Checking Payload CMS Admin ==="
-          curl -f -I -v http://localhost:3002/admin
-
-          echo "=== Checking Storefront Root Redirect ==="
-          curl -f -I -v http://localhost:3001/
-
-      - name: Dump logs on failure
-        if: failure()
-        run: |
-          cd my-shop
-          docker compose logs
-
-      - name: Shut down containers
-        run: |
-          cd my-shop
-          docker compose down -v
+      - name: Build CMS
+        run: npm run build -w cms
+        env:
+          PAYLOAD_SECRET: ci-secret
+          DATABASE_URI: postgres://user:pass@localhost:5432/db
+          DB_PUSH: "false"

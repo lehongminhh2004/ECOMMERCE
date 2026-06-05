@@ -11,6 +11,7 @@ import { useCheckout } from '../checkout-provider';
 import { setShippingMethod as setShippingMethodAction } from '../actions';
 import {useTranslations, useLocale} from 'next-intl';
 import {toIntlLocale} from '@/i18n/locale-utils';
+import {formatPrice} from '@/lib/currency-utils';
 
 interface DeliveryStepProps {
   onComplete: () => void;
@@ -78,10 +79,7 @@ export default function DeliveryStep({ onComplete }: DeliveryStepProps) {
                   <p className="font-semibold">
                     {method.priceWithTax === 0
                       ? t('free')
-                      : (method.priceWithTax / 100).toLocaleString(intlLocale, {
-                          style: 'currency',
-                          currency: 'USD',
-                        })}
+                      : formatPrice(method.priceWithTax, order.currencyCode, intlLocale)}
                   </p>
                 </div>
               </div>

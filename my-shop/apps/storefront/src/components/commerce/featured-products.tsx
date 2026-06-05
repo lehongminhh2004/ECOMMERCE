@@ -7,6 +7,7 @@ import {GetCollectionProductsQuery} from "@/lib/vendure/queries";
 import { Link } from '@/i18n/navigation';
 import {ArrowRight} from "lucide-react";
 import {getTranslations} from 'next-intl/server';
+import {getProductCardPriceOverrides} from '@/lib/vendure/product-card-price-overrides';
 
 async function getFeaturedCollectionProducts(currencyCode: string) {
     'use cache'
@@ -37,12 +38,14 @@ export async function FeaturedProducts() {
     const currencyCode = await getActiveCurrencyCode();
     const t = await getTranslations({locale, namespace: 'Product'});
     const products = await getFeaturedCollectionProducts(currencyCode);
+    const priceOverrides = await getProductCardPriceOverrides(products, currencyCode);
 
     return (
         <div>
             <ProductCarousel
                 title={t('featuredProducts')}
                 products={products}
+                priceOverrides={priceOverrides}
             />
             <div className="container mx-auto px-4 -mt-6 mb-8">
                 <div className="flex justify-center">

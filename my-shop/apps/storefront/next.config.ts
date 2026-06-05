@@ -1,5 +1,6 @@
 import {NextConfig} from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
+import path from 'node:path';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
@@ -24,12 +25,19 @@ const nextConfig: NextConfig = {
             },
             {
                 hostname: 'payload_cms'
+            },
+            {
+                protocol: 'https',
+                hostname: 'res.cloudinary.com'
             }
         ],
     },
     experimental: {
         rootParams: true
-    }
+    },
+    turbopack: {
+        root: path.resolve(__dirname, '../..'),
+    },
 };
 
 export default withNextIntl(nextConfig);

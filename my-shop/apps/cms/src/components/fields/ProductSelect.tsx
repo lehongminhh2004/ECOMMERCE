@@ -158,3 +158,6 @@ export const ProductSelect: React.FC<ProductSelectProps> = ({ path, field }) => 
     </div>
   )
 }
+
+export default ProductSelect
+
