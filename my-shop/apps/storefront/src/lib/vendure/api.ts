@@ -6,6 +6,7 @@ const VENDURE_API_URL = process.env.VENDURE_SHOP_API_URL || process.env.NEXT_PUB
 const VENDURE_CHANNEL_TOKEN = process.env.VENDURE_CHANNEL_TOKEN || process.env.NEXT_PUBLIC_VENDURE_CHANNEL_TOKEN || '__default_channel__';
 const VENDURE_AUTH_TOKEN_HEADER = process.env.VENDURE_AUTH_TOKEN_HEADER || 'vendure-auth-token';
 const VENDURE_CHANNEL_TOKEN_HEADER = process.env.VENDURE_CHANNEL_TOKEN_HEADER || 'vendure-token';
+const VENDURE_FETCH_TIMEOUT_MS = +(process.env.VENDURE_FETCH_TIMEOUT_MS || 8000);
 
 if (!VENDURE_API_URL) {
     throw new Error('VENDURE_SHOP_API_URL or NEXT_PUBLIC_VENDURE_SHOP_API_URL environment variable is not set');
@@ -79,9 +80,13 @@ export async function query<TResult, TVariables>(
         url.searchParams.set('currencyCode', currencyCode);
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), VENDURE_FETCH_TIMEOUT_MS);
+
     try {
         const response = await fetch(url.toString(), {
             ...fetchOptions,
+            signal: fetchOptions?.signal || controller.signal,
             method: 'POST',
             headers,
             body: JSON.stringify({
@@ -116,6 +121,8 @@ export async function query<TResult, TVariables>(
         return {
             data: {} as TResult
         };
+    } finally {
+        clearTimeout(timeout);
     }
 }
 

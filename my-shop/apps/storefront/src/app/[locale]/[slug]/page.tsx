@@ -1,5 +1,6 @@
 import type {Metadata} from "next";
 import {Suspense} from "react";
+import {connection} from "next/server";
 import {notFound} from "next/navigation";
 import {getRouteLocale} from "@/i18n/server";
 import {SITE_NAME, SITE_URL, buildCanonicalUrl} from "@/lib/metadata";
@@ -15,6 +16,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    await connection();
     const { slug } = await params;
     const locale = await getRouteLocale();
     const ogLocale = toOgLocale(locale);
@@ -41,6 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 async function DynamicPageContent({ params }: { params: PageProps["params"] }) {
+    await connection();
     const { slug } = await params;
     const payloadPage = await getPageBySlug(slug);
     

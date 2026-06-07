@@ -8,6 +8,7 @@ import { cacheLife, cacheTag } from 'next/cache'
 
 const PAYLOAD_API_URL = process.env.PAYLOAD_API_URL || process.env.NEXT_PUBLIC_PAYLOAD_API_URL || 'http://localhost:3002/api'
 const PAYLOAD_FALLBACK_LOCALE = 'en'
+const PAYLOAD_FETCH_TIMEOUT_MS = +(process.env.PAYLOAD_FETCH_TIMEOUT_MS || 8000)
 
 export interface Media {
   id: string
@@ -79,24 +80,31 @@ export interface FooterData {
 async function fetchPayload<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${PAYLOAD_API_URL}${path}`
   const isDev = process.env.NODE_ENV === 'development'
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-    next: isDev ? { revalidate: 0 } : {
-      revalidate: 60, // Cache for 60 seconds
-      ...options?.next,
-    },
-    cache: isDev ? 'no-store' : undefined,
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), PAYLOAD_FETCH_TIMEOUT_MS)
+  try {
+    const res = await fetch(url, {
+      ...options,
+      signal: options?.signal || controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+      next: isDev ? { revalidate: 0 } : {
+        revalidate: 60, // Cache for 60 seconds
+        ...options?.next,
+      },
+      cache: isDev ? 'no-store' : undefined,
+    })
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch Payload data from ${url}: ${res.statusText}`)
+    if (!res.ok) {
+      throw new Error(`Failed to fetch Payload data from ${url}: ${res.statusText}`)
+    }
+
+    return res.json()
+  } finally {
+    clearTimeout(timeout)
   }
-
-  return res.json()
 }
 
 function withPayloadLocale(path: string, locale: string): string {
