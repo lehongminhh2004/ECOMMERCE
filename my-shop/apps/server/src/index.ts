@@ -10,11 +10,15 @@ async function start() {
     await bootstrap(config);
 
     if (process.env.RUN_WORKER_IN_PROCESS === 'true') {
+        const { DefaultSchedulerPlugin } = require('@vendure/core');
         const workerConfig = {
             ...config,
-            plugins: (config.plugins || []).filter(p => {
+            plugins: (config.plugins || []).map(p => {
                 const name = typeof p === 'function' ? p.name : (p as any)?.constructor?.name;
-                return name !== 'DefaultSchedulerPlugin' && name !== 'SchedulerPlugin';
+                if (name === 'DefaultSchedulerPlugin' || name === 'SchedulerPlugin') {
+                    return DefaultSchedulerPlugin.init({ tasks: [] });
+                }
+                return p;
             }),
         };
         const worker = await bootstrapWorker(workerConfig);
