@@ -1,5 +1,12 @@
-import { bootstrap, bootstrapWorker, runMigrations } from '@vendure/core';
+import { bootstrap, bootstrapWorker, DefaultSchedulerPlugin, runMigrations, VendureConfig } from '@vendure/core';
 import { config } from './vendure-config';
+
+function omitSchedulerPlugin(vendureConfig: VendureConfig): VendureConfig {
+    return {
+        ...vendureConfig,
+        plugins: (vendureConfig.plugins || []).filter(plugin => plugin !== DefaultSchedulerPlugin),
+    };
+}
 
 async function start() {
     if (process.argv.includes('--run-migrations')) {
@@ -7,21 +14,13 @@ async function start() {
         return;
     }
 
-    await bootstrap(config);
+    const runWorkerInProcess = process.env.RUN_WORKER_IN_PROCESS === 'true';
+    const serverConfig = runWorkerInProcess ? omitSchedulerPlugin(config) : config;
 
-    if (process.env.RUN_WORKER_IN_PROCESS === 'true') {
-        const { DefaultSchedulerPlugin } = require('@vendure/core');
-        const workerConfig = {
-            ...config,
-            plugins: (config.plugins || []).map(p => {
-                const name = typeof p === 'function' ? p.name : (p as any)?.constructor?.name;
-                if (name === 'DefaultSchedulerPlugin' || name === 'SchedulerPlugin') {
-                    return DefaultSchedulerPlugin.init({ tasks: [] });
-                }
-                return p;
-            }),
-        };
-        const worker = await bootstrapWorker(workerConfig);
+    await bootstrap(serverConfig);
+
+    if (runWorkerInProcess) {
+        const worker = await bootstrapWorker(config);
         await worker.startJobQueue();
     }
 }
