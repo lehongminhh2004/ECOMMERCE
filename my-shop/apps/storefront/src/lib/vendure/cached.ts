@@ -12,7 +12,13 @@ export async function getActiveChannelCached() {
     cacheLife('hours');
 
     const result = await query(GetActiveChannelQuery);
-    return result.data.activeChannel;
+    return result.data?.activeChannel || {
+        code: 'default',
+        defaultLanguageCode: 'vi',
+        defaultCurrencyCode: 'VND',
+        availableCurrencyCodes: ['VND'],
+        pricesIncludeTax: true
+    };
 }
 
 /**
@@ -26,7 +32,7 @@ export async function getAvailableCountriesCached(locale: string) {
     cacheTag(`countries-${locale}`);
 
     const result = await query(GetAvailableCountriesQuery, undefined, {languageCode: locale});
-    return result.data.availableCountries || [];
+    return result.data?.availableCountries || [];
 }
 
 /**
@@ -40,5 +46,5 @@ export async function getTopCollections(locale: string) {
     cacheTag(`collections-${locale}`);
 
     const result = await query(GetTopCollectionsQuery, undefined, {languageCode: locale});
-    return result.data.collections.items;
+    return result.data?.collections?.items || [];
 }

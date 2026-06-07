@@ -7,6 +7,7 @@ import { GetCollectionProductsQuery } from "@/lib/vendure/queries";
 import { readFragment } from "@/graphql";
 import { ProductCardFragment } from "@/lib/vendure/fragments";
 import {getTranslations} from 'next-intl/server';
+import {getProductCardPriceOverrides} from '@/lib/vendure/product-card-price-overrides';
 
 interface RelatedProductsProps {
     collectionSlug: string;
@@ -32,7 +33,7 @@ async function getRelatedProducts(collectionSlug: string, currentProductId: stri
     }, {languageCode: locale, currencyCode});
 
     // Filter out the current product and limit to 12
-    return result.data.search.items
+    return (result.data?.search?.items || [])
         .filter(item => {
             const product = readFragment(ProductCardFragment, item);
             return product.productId !== currentProductId;
@@ -45,6 +46,7 @@ export async function RelatedProducts({ collectionSlug, currentProductId }: Rela
     const currencyCode = await getActiveCurrencyCode();
     const t = await getTranslations({locale, namespace: 'Product'});
     const products = await getRelatedProducts(collectionSlug, currentProductId, currencyCode);
+    const priceOverrides = await getProductCardPriceOverrides(products, currencyCode);
 
     if (products.length === 0) {
         return null;
@@ -54,6 +56,7 @@ export async function RelatedProducts({ collectionSlug, currentProductId }: Rela
         <ProductCarousel
             title={t('relatedProducts')}
             products={products}
+            priceOverrides={priceOverrides}
         />
     );
 }

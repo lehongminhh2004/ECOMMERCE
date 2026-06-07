@@ -5,6 +5,8 @@ import {useRouter, usePathname} from '@/i18n/navigation';
 import {routing, localeNames} from '@/i18n/routing';
 import {Globe} from 'lucide-react';
 import {Button} from '@/components/ui/button';
+import {switchLocaleCurrency} from '@/lib/actions/switch-locale';
+import {useTransition} from 'react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,9 +19,14 @@ export function LanguagePicker() {
     const locale = useLocale();
     const router = useRouter();
     const pathname = usePathname();
+    const [isPending, startTransition] = useTransition();
 
     const handleLocaleChange = (newLocale: string) => {
-        router.replace(pathname, {locale: newLocale});
+        startTransition(async () => {
+            await switchLocaleCurrency(newLocale);
+            router.replace(pathname, {locale: newLocale});
+            router.refresh();
+        });
     };
 
     return (
@@ -33,6 +40,7 @@ export function LanguagePicker() {
                     <DropdownMenuItem
                         key={loc}
                         onClick={() => handleLocaleChange(loc)}
+                        disabled={isPending}
                     >
                         <span>{localeNames[loc] ?? loc.toUpperCase()}</span>
                         {locale === loc && <span className="ml-auto text-xs">✓</span>}

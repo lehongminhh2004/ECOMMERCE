@@ -2,16 +2,18 @@
 
 import {ProductCard} from "@/components/commerce/product-card";
 import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious,} from "@/components/ui/carousel";
-import {FragmentOf} from "@/graphql";
+import {FragmentOf, readFragment} from "@/graphql";
 import {ProductCardFragment} from "@/lib/vendure/fragments";
+import type {ProductCardPrice} from "@/lib/vendure/product-card-price-overrides";
 import {useId} from "react";
 
 interface ProductCarouselClientProps {
     title: string;
     products: Array<FragmentOf<typeof ProductCardFragment>>;
+    priceOverrides?: Record<string, ProductCardPrice>;
 }
 
-export function ProductCarousel({title, products}: ProductCarouselClientProps) {
+export function ProductCarousel({title, products, priceOverrides}: ProductCarouselClientProps) {
     const id = useId();
 
     return (
@@ -27,10 +29,11 @@ export function ProductCarousel({title, products}: ProductCarouselClientProps) {
                 >
                     <CarouselContent className="-ml-2 md:-ml-4">
                         {products.map((product, i) => (
-                            <CarouselItem key={id + i}
-                                          className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                                <ProductCard product={product}/>
-                            </CarouselItem>
+                            <CarouselProductItem
+                                key={id + i}
+                                product={product}
+                                priceOverrides={priceOverrides}
+                            />
                         ))}
                     </CarouselContent>
                     <CarouselPrevious className="hidden md:flex"/>
@@ -38,5 +41,21 @@ export function ProductCarousel({title, products}: ProductCarouselClientProps) {
                 </Carousel>
             </div>
         </section>
+    );
+}
+
+function CarouselProductItem({
+    product: productProp,
+    priceOverrides,
+}: {
+    product: FragmentOf<typeof ProductCardFragment>;
+    priceOverrides?: Record<string, ProductCardPrice>;
+}) {
+    const product = readFragment(ProductCardFragment, productProp);
+
+    return (
+        <CarouselItem className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+            <ProductCard product={productProp} priceOverride={priceOverrides?.[product.productId]}/>
+        </CarouselItem>
     );
 }

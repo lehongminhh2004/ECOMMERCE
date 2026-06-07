@@ -14,7 +14,7 @@ export async function NavbarCart() {
         tags: ['cart'],
     });
 
-    const cartItemCount = orderResult.data.activeOrder?.totalQuantity || 0;
+    const cartItemCount = orderResult.data?.activeOrder?.totalQuantity || 0;
 
     return <CartIcon cartItemCount={cartItemCount} />;
 }

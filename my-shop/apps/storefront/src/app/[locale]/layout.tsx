@@ -1,7 +1,6 @@
 import type {Metadata, Viewport} from "next";
 import {locale as rootLocale} from "next/root-params";
 import {hasLocale, NextIntlClientProvider} from "next-intl";
-import {Geist, Geist_Mono} from "next/font/google";
 import {getMessages, getTranslations, setRequestLocale} from "next-intl/server";
 import {notFound} from "next/navigation";
 import {routing} from "@/i18n/routing";
@@ -12,17 +11,8 @@ import {Navbar} from "@/components/layout/navbar";
 import {Footer} from "@/components/layout/footer";
 import {ThemeProvider} from "@/components/providers/theme-provider";
 import {SITE_NAME, SITE_URL} from "@/lib/metadata";
+import {Suspense} from "react";
 import "./globals.css";
-
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
 
 export function generateStaticParams() {
     return routing.locales.map((locale) => ({locale}));
@@ -90,13 +80,15 @@ export default async function LocaleLayout({children}: {children: React.ReactNod
     return (
         <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+                className="antialiased flex flex-col min-h-screen"
             >
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ThemeProvider>
-                        <Navbar />
+                        <Suspense fallback={<div className="h-16 border-b bg-background/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50" />}>
+                            <Navbar locale={locale} />
+                        </Suspense>
                         {children}
-                        <Footer/>
+                        <Footer locale={locale} />
                         <Toaster/>
                     </ThemeProvider>
                 </NextIntlClientProvider>

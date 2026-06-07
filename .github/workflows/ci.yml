@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+  push:
+    branches:
+      - develop
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate monorepo
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: my-shop
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: my-shop/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint storefront
+        run: npm run lint -w storefront
+
+      - name: Lint CMS
+        run: npm run lint -w cms
+
+      - name: Typecheck Vendure server
+        run: npm exec -w server tsc -- --noEmit
+
+      - name: Typecheck storefront
+        run: npm run check-types -w storefront
+
+      - name: Typecheck CMS
+        run: npm exec -w cms tsc -- --noEmit
+
+      - name: Build Vendure server
+        run: npm run build -w server
+
+      - name: Build storefront
+        run: npm run build -w storefront
+        env:
+          VENDURE_SHOP_API_URL: https://example.com/shop-api
+          NEXT_PUBLIC_VENDURE_SHOP_API_URL: https://example.com/shop-api
+          PAYLOAD_API_URL: https://example.com/api
+          NEXT_PUBLIC_PAYLOAD_API_URL: https://example.com/api
+          NEXT_PUBLIC_SITE_URL: https://example.com
+          NEXT_PUBLIC_SITE_NAME: my-shop
+          REVALIDATION_SECRET: ci-secret
+
+      - name: Build CMS
+        run: npm run build -w cms
+        env:
+          PAYLOAD_SECRET: ci-secret
+          DATABASE_URI: postgres://user:pass@localhost:5432/db
+          DB_PUSH: "false"

@@ -14,6 +14,19 @@ import path from 'path';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 const serverPort = +process.env.PORT || 3000;
+const dbSslEnabled = process.env.DB_SSL === 'true';
+const dbPoolMax = +(process.env.VENDURE_DB_POOL_MAX || 6);
+const dbConnectionOptions = process.env.DATABASE_URL
+    ? {
+        url: process.env.DATABASE_URL,
+    }
+    : {
+        database: process.env.DB_NAME,
+        host: process.env.DB_HOST,
+        port: +process.env.DB_PORT,
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+    };
 
 export const config: VendureConfig = {
     apiOptions: {
@@ -42,16 +55,15 @@ export const config: VendureConfig = {
     dbConnectionOptions: {
         type: 'postgres',
         // See the README.md "Migrations" section for an explanation of
-        // the `synchronize` and `migrations` options.
-        synchronize: false,
+        synchronize: process.env.DB_SYNCHRONIZE === 'true',
         migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
         logging: false,
-        database: process.env.DB_NAME,
         schema: process.env.DB_SCHEMA,
-        host: process.env.DB_HOST,
-        port: +process.env.DB_PORT,
-        username: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
+        ...dbConnectionOptions,
+        ...(dbSslEnabled ? { ssl: { rejectUnauthorized: false } } : {}),
+        extra: {
+            max: dbPoolMax,
+        },
     },
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
@@ -67,26 +79,36 @@ export const config: VendureConfig = {
             // For local dev, the correct value for assetUrlPrefix should
             // be guessed correctly, but for production it will usually need
             // to be set manually to match your production url.
-            assetUrlPrefix: IS_DEV ? undefined : 'https://www.my-shop.com/assets/',
+            assetUrlPrefix: process.env.ASSET_URL_PREFIX || undefined,
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
-        EmailPlugin.init({
-            devMode: true,
-            outputPath: path.join(__dirname, '../static/email/test-emails'),
-            route: 'mailbox',
-            handlers: defaultEmailHandlers,
-            templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
-            globalTemplateVars: {
-                // The following variables will change depending on your storefront implementation.
-                // Here we are assuming a storefront running at http://localhost:8080.
-                fromAddress: '"example" <noreply@example.com>',
-                verifyEmailAddressUrl: 'http://localhost:8080/verify',
-                passwordResetUrl: 'http://localhost:8080/password-reset',
-                changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
-            },
-        }),
+        EmailPlugin.init(IS_DEV
+            ? {
+                devMode: true,
+                outputPath: path.join(__dirname, '../static/email/test-emails'),
+                route: 'mailbox',
+                handlers: defaultEmailHandlers,
+                templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
+                globalTemplateVars: {
+                    fromAddress: '"example" <noreply@example.com>',
+                    verifyEmailAddressUrl: 'http://localhost:3001/verify',
+                    passwordResetUrl: 'http://localhost:3001/reset-password',
+                    changeEmailAddressUrl: 'http://localhost:3001/account/verify-email'
+                },
+            }
+            : {
+                transport: { type: 'none' },
+                handlers: defaultEmailHandlers,
+                templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
+                globalTemplateVars: {
+                    fromAddress: '"example" <noreply@example.com>',
+                    verifyEmailAddressUrl: `${process.env.STOREFRONT_URL || 'http://localhost:3001'}/verify`,
+                    passwordResetUrl: `${process.env.STOREFRONT_URL || 'http://localhost:3001'}/reset-password`,
+                    changeEmailAddressUrl: `${process.env.STOREFRONT_URL || 'http://localhost:3001'}/account/verify-email`
+                },
+            }),
         DashboardPlugin.init({
             route: 'dashboard',
             appDir: IS_DEV

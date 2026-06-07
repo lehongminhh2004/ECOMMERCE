@@ -11,10 +11,42 @@ import {Suspense} from "react";
 import {SearchInput} from '@/components/layout/search-input';
 import {NavbarUserSkeleton} from '@/components/shared/skeletons/navbar-user-skeleton';
 import {SearchInputSkeleton} from '@/components/shared/skeletons/search-input-skeleton';
+import {getNavigation} from "@/lib/payload/api";
+import {NavbarLink} from '@/components/layout/navbar/navbar-link';
+import {
+    NavigationMenu,
+    NavigationMenuList,
+    NavigationMenuItem,
+} from '@/components/ui/navigation-menu';
 
-export function Navbar() {
+const cmsLinkTranslations: Record<string, string> = {
+    'Shop': 'Cửa hàng',
+    'Deals': 'Ưu đãi',
+    'Summer Sale': 'Khuyến mãi hè',
+    'Terms of Service': 'Điều khoản dịch vụ',
+    'Privacy Policy': 'Chính sách bảo mật',
+    'About Us': 'Giới thiệu',
+    'Contact': 'Liên hệ',
+};
+
+function getCmsLinkLabel(label: string, locale: string) {
+    if (locale === 'vi') {
+        return cmsLinkTranslations[label] || label;
+    }
+    return label;
+}
+
+export async function Navbar({ locale }: { locale: string }) {
+    const navigation = await getNavigation();
+    const topAnnouncement = navigation?.topAnnouncement;
+
     return (
         <header className="fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-md bg-background/80">
+            {topAnnouncement && (
+                <div className="bg-primary text-primary-foreground text-center py-1.5 text-xs font-medium">
+                    {topAnnouncement}
+                </div>
+            )}
             <div className="container mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center gap-8">
@@ -26,8 +58,21 @@ export function Navbar() {
                         </NavigationLink>
                         <nav className="hidden md:flex items-center gap-6">
                             <Suspense>
-                                <NavbarCollections/>
+                                <NavbarCollections locale={locale} />
                             </Suspense>
+                            {navigation?.links && navigation.links.length > 0 && (
+                                <NavigationMenu>
+                                    <NavigationMenuList>
+                                        {navigation.links.map((link, idx) => (
+                                            <NavigationMenuItem key={idx}>
+                                                <NavbarLink href={link.url}>
+                                                    {getCmsLinkLabel(link.label, locale)}
+                                                </NavbarLink>
+                                            </NavigationMenuItem>
+                                        ))}
+                                    </NavigationMenuList>
+                                </NavigationMenu>
+                            )}
                         </nav>
                     </div>
                     <div className="flex items-center gap-4">
@@ -57,3 +102,4 @@ export function Navbar() {
         </header>
     );
 }
+

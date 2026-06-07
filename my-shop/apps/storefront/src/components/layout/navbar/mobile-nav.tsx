@@ -21,11 +21,17 @@ interface Collection {
     slug: string;
 }
 
-interface MobileNavProps {
-    collections: Collection[];
+interface CMSLink {
+    label: string;
+    url: string;
 }
 
-export function MobileNav({collections}: MobileNavProps) {
+interface MobileNavProps {
+    collections: Collection[];
+    cmsLinks: CMSLink[];
+}
+
+export function MobileNav({collections, cmsLinks}: MobileNavProps) {
     const t = useTranslations('Navigation');
     const [open, setOpen] = useState(false);
     const [searchValue, setSearchValue] = useState('');
@@ -52,60 +58,86 @@ export function MobileNav({collections}: MobileNavProps) {
                 <SheetHeader>
                     <SheetTitle>{t('menu')}</SheetTitle>
                 </SheetHeader>
-
+ 
                 <div className="flex flex-col gap-6 px-4 pb-6">
                     {/* Search */}
                     <form onSubmit={handleSearch} className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                            type="search"
-                            placeholder={t('searchProducts')}
-                            className="pl-9 w-full"
-                            value={searchValue}
-                            onChange={(e) => setSearchValue(e.target.value)}
-                        />
-                    </form>
+                             type="search"
+                             placeholder={t('searchProducts')}
+                             className="pl-9 w-full"
+                             value={searchValue}
+                             onChange={(e) => setSearchValue(e.target.value)}
+                         />
+                     </form>
+ 
+                     {/* Shop All */}
+                     <div>
+                         <SheetClose
+                             render={
+                                 <Link
+                                     href="/search"
+                                     className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                                 />
+                             }
+                             onClick={handleLinkClick}
+                         >
+                             <ShoppingBag className="h-5 w-5" />
+                             {t('shopAll')}
+                         </SheetClose>
+                     </div>
+ 
+                     {/* Collections */}
+                     {collections.length > 0 && (
+                         <div>
+                             <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                 {t('collections')}
+                             </p>
+                             <nav className="flex flex-col gap-0.5">
+                                 {collections.map((collection) => (
+                                     <SheetClose
+                                         key={collection.slug}
+                                         render={
+                                             <Link
+                                                 href={`/collection/${collection.slug}`}
+                                                 className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                                             />
+                                         }
+                                         onClick={handleLinkClick}
+                                     >
+                                         {collection.name}
+                                     </SheetClose>
+                                 ))}
+                             </nav>
+                         </div>
+                     )}
 
-                    {/* Shop All */}
-                    <div>
-                        <SheetClose
-                            render={
-                                <Link
-                                    href="/search"
-                                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                                />
-                            }
-                            onClick={handleLinkClick}
-                        >
-                            <ShoppingBag className="h-5 w-5" />
-                            {t('shopAll')}
-                        </SheetClose>
-                    </div>
+                     {/* CMS Custom Links */}
+                     {cmsLinks.length > 0 && (
+                         <div>
+                             <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                 {t('menu')}
+                             </p>
+                             <nav className="flex flex-col gap-0.5">
+                                 {cmsLinks.map((link, idx) => (
+                                     <SheetClose
+                                         key={idx}
+                                         render={
+                                             <Link
+                                                 href={link.url}
+                                                 className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                                             />
+                                         }
+                                         onClick={handleLinkClick}
+                                     >
+                                         {link.label}
+                                     </SheetClose>
+                                 ))}
+                             </nav>
+                         </div>
+                     )}
 
-                    {/* Collections */}
-                    {collections.length > 0 && (
-                        <div>
-                            <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                {t('collections')}
-                            </p>
-                            <nav className="flex flex-col gap-0.5">
-                                {collections.map((collection) => (
-                                    <SheetClose
-                                        key={collection.slug}
-                                        render={
-                                            <Link
-                                                href={`/collection/${collection.slug}`}
-                                                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                                            />
-                                        }
-                                        onClick={handleLinkClick}
-                                    >
-                                        {collection.name}
-                                    </SheetClose>
-                                ))}
-                            </nav>
-                        </div>
-                    )}
 
                     {/* Account links */}
                     <div>

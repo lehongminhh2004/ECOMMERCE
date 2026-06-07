@@ -63,7 +63,7 @@ export async function generateMetadata({
     const { slug } = await params;
     const locale = await getRouteLocale();
     const result = await getCollectionMetadata(slug);
-    const collection = result.data.collection;
+    const collection = result.data?.collection;
 
     const t = await getTranslations({locale, namespace: 'Product'});
 
@@ -117,7 +117,7 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
 
     const productDataPromise = getCollectionProducts(slug, searchParamsResolved, currencyCode);
     const collectionResult = await getCollectionMetadata(slug);
-    const collectionName = collectionResult.data.collection?.name ?? slug;
+    const collectionName = collectionResult.data?.collection?.name ?? slug;
 
     return (
         <div className="container mx-auto px-4 py-8 mt-16">
