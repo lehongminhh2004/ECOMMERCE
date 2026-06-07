@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor, BlocksFeature } from '@payloadcms/richtext-lexical'
+import { vi } from '@payloadcms/translations/languages/vi'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -8,14 +9,53 @@ import { VendureProductBlock } from '@/blocks/VendureProduct'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const dbSslEnabled = process.env.DB_SSL === 'true'
+const dbPoolMax = Number(process.env.PAYLOAD_DB_POOL_MAX || 4)
+
+const triggerRevalidate = (tag: string) => async () => {
+  try {
+    const revalidateUrl = process.env.STOREFRONT_REVALIDATE_URL || 'http://storefront:3001/api/revalidate';
+    const secret = process.env.REVALIDATION_SECRET || 'e1EX6Yeu0fjJ6X2qweSav50VjOxkNPFlMEeXEGvj7Dg=';
+    const res = await fetch(revalidateUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${secret}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tags: [tag] }),
+    });
+    if (res.ok) {
+      console.log(`Successfully triggered ${tag} cache revalidation`);
+    } else {
+      console.error(`Failed to trigger ${tag} cache revalidation: ${res.statusText}`);
+    }
+  } catch (err) {
+    console.error(`Failed to trigger ${tag} cache revalidation:`, err);
+  }
+}
 
 export default buildConfig({
+  i18n: {
+    supportedLanguages: { vi },
+    fallbackLanguage: 'vi',
+  },
+  localization: {
+    locales: [
+      { label: 'Tiếng Việt', code: 'vi' },
+      { label: 'English', code: 'en' },
+    ],
+    defaultLocale: 'en',
+    fallback: true,
+  },
   admin: {
     user: 'users',
     importMap: {
       baseDir: path.resolve(dirname),
     },
   },
+  blocks: [
+    VendureProductBlock
+  ],
   collections: [
     {
       slug: 'users',
@@ -33,6 +73,7 @@ export default buildConfig({
           name: 'alt',
           type: 'text',
           required: true,
+          localized: true,
         },
       ],
     },
@@ -49,6 +90,7 @@ export default buildConfig({
           name: 'name',
           type: 'text',
           required: true,
+          localized: true,
         },
         {
           name: 'slug',
@@ -71,6 +113,7 @@ export default buildConfig({
           name: 'title',
           type: 'text',
           required: true,
+          localized: true,
         },
         {
           name: 'slug',
@@ -96,13 +139,17 @@ export default buildConfig({
         {
           name: 'content',
           type: 'richText',
+          localized: true,
           editor: lexicalEditor({
-            features: ({ defaultFeatures }) => [
-              ...defaultFeatures,
-              BlocksFeature({
-                blocks: [VendureProductBlock]
-              })
-            ]
+            features: ({ defaultFeatures }) => {
+              const filtered = defaultFeatures.filter((f) => f.key !== 'blocks')
+              return [
+                ...filtered,
+                BlocksFeature({
+                  blocks: [VendureProductBlock]
+                })
+              ]
+            }
           }),
         },
 
@@ -113,6 +160,27 @@ export default buildConfig({
       access: {
         read: () => true,
       },
+      hooks: {
+        afterChange: [
+          async ({ doc }) => {
+            try {
+              const revalidateUrl = process.env.STOREFRONT_REVALIDATE_URL || 'http://storefront:3001/api/revalidate';
+              const secret = process.env.REVALIDATION_SECRET || 'e1EX6Yeu0fjJ6X2qweSav50VjOxkNPFlMEeXEGvj7Dg=';
+              await fetch(revalidateUrl, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${secret}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tags: ['pages', `page-${doc.slug}`] }),
+              });
+              console.log(`Successfully triggered page-${doc.slug} cache revalidation`);
+            } catch (err) {
+              console.error(`Failed to trigger page-${doc.slug} cache revalidation:`, err);
+            }
+          }
+        ]
+      },
       admin: {
         useAsTitle: 'title',
       },
@@ -121,6 +189,7 @@ export default buildConfig({
           name: 'title',
           type: 'text',
           required: true,
+          localized: true,
         },
         {
           name: 'slug',
@@ -139,10 +208,12 @@ export default buildConfig({
                   name: 'title',
                   type: 'text',
                   required: true,
+                  localized: true,
                 },
                 {
                   name: 'subtitle',
                   type: 'textarea',
+                  localized: true,
                 },
                 {
                   name: 'backgroundImage',
@@ -152,6 +223,7 @@ export default buildConfig({
                 {
                   name: 'ctaText',
                   type: 'text',
+                  localized: true,
                 },
                 {
                   name: 'ctaLink',
@@ -165,6 +237,7 @@ export default buildConfig({
                 {
                   name: 'title',
                   type: 'text',
+                  localized: true,
                 },
                 {
                   name: 'productSlugs',
@@ -185,6 +258,7 @@ export default buildConfig({
                 {
                   name: 'content',
                   type: 'richText',
+                  localized: true,
                   editor: lexicalEditor({}),
                 },
               ],
@@ -196,14 +270,17 @@ export default buildConfig({
                   name: 'title',
                   type: 'text',
                   required: true,
+                  localized: true,
                 },
                 {
                   name: 'description',
                   type: 'textarea',
+                  localized: true,
                 },
                 {
                   name: 'buttonText',
                   type: 'text',
+                  localized: true,
                 },
                 {
                   name: 'buttonLink',
@@ -222,10 +299,14 @@ export default buildConfig({
       access: {
         read: () => true,
       },
+      hooks: {
+        afterChange: [triggerRevalidate('navigation')],
+      },
       fields: [
         {
           name: 'topAnnouncement',
           type: 'text',
+          localized: true,
         },
         {
           name: 'links',
@@ -235,6 +316,7 @@ export default buildConfig({
               name: 'label',
               type: 'text',
               required: true,
+              localized: true,
             },
             {
               name: 'url',
@@ -250,10 +332,14 @@ export default buildConfig({
       access: {
         read: () => true,
       },
+      hooks: {
+        afterChange: [triggerRevalidate('footer')],
+      },
       fields: [
         {
           name: 'contactInfo',
           type: 'textarea',
+          localized: true,
         },
         {
           name: 'links',
@@ -263,6 +349,7 @@ export default buildConfig({
               name: 'label',
               type: 'text',
               required: true,
+              localized: true,
             },
             {
               name: 'url',
@@ -304,6 +391,8 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI || 'postgres://vendure:819LpPJvT_5FGtwgm7ZsRw@localhost:6543/vendure',
+      max: dbPoolMax,
+      ...(dbSslEnabled ? { ssl: { rejectUnauthorized: false } } : {}),
     },
     push: process.env.DB_PUSH === 'true',
   }),

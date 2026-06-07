@@ -7,6 +7,7 @@ import { cacheLife, cacheTag } from 'next/cache'
 
 
 const PAYLOAD_API_URL = process.env.PAYLOAD_API_URL || process.env.NEXT_PUBLIC_PAYLOAD_API_URL || 'http://localhost:3002/api'
+const PAYLOAD_FALLBACK_LOCALE = 'en'
 
 export interface Media {
   id: string
@@ -98,13 +99,28 @@ async function fetchPayload<T>(path: string, options?: RequestInit): Promise<T> 
   return res.json()
 }
 
+function withPayloadLocale(path: string, locale: string): string {
+  const separator = path.includes('?') ? '&' : '?'
+  const encodedLocale = encodeURIComponent(locale)
+  const encodedFallbackLocale = encodeURIComponent(PAYLOAD_FALLBACK_LOCALE)
+  return `${path}${separator}locale=${encodedLocale}&fallback-locale=${encodedFallbackLocale}`
+}
+
 export async function getPageBySlug(slug: string): Promise<PageData | null> {
+  const locale = await getRouteLocale()
+  return getPageBySlugCached(slug, locale)
+}
+
+async function getPageBySlugCached(slug: string, locale: string): Promise<PageData | null> {
   'use cache'
   cacheLife('minutes')
+  cacheTag(`page-${slug}-${locale}`)
   cacheTag(`page-${slug}`)
   cacheTag('pages')
   try {
-    const data = await fetchPayload<{ docs: PageData[] }>(`/pages?where[slug][equals]=${slug}`)
+    const data = await fetchPayload<{ docs: PageData[] }>(
+      withPayloadLocale(`/pages?where[slug][equals]=${encodeURIComponent(slug)}`, locale)
+    )
     return data.docs.length > 0 ? data.docs[0] : null
   } catch (error) {
     console.error('Error fetching page from Payload:', error)
@@ -113,11 +129,17 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
 }
 
 export async function getPosts(): Promise<PostData[]> {
+  const locale = await getRouteLocale()
+  return getPostsCached(locale)
+}
+
+async function getPostsCached(locale: string): Promise<PostData[]> {
   'use cache'
   cacheLife('minutes')
+  cacheTag(`posts-${locale}`)
   cacheTag('posts')
   try {
-    const data = await fetchPayload<{ docs: PostData[] }>('/posts?sort=-createdAt')
+    const data = await fetchPayload<{ docs: PostData[] }>(withPayloadLocale('/posts?sort=-createdAt', locale))
     return data.docs
   } catch (error) {
     console.error('Error fetching posts from Payload:', error)
@@ -126,12 +148,20 @@ export async function getPosts(): Promise<PostData[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<PostData | null> {
+  const locale = await getRouteLocale()
+  return getPostBySlugCached(slug, locale)
+}
+
+async function getPostBySlugCached(slug: string, locale: string): Promise<PostData | null> {
   'use cache'
   cacheLife('minutes')
+  cacheTag(`post-${slug}-${locale}`)
   cacheTag(`post-${slug}`)
   cacheTag('posts')
   try {
-    const data = await fetchPayload<{ docs: PostData[] }>(`/posts?where[slug][equals]=${slug}`)
+    const data = await fetchPayload<{ docs: PostData[] }>(
+      withPayloadLocale(`/posts?where[slug][equals]=${encodeURIComponent(slug)}`, locale)
+    )
     return data.docs.length > 0 ? data.docs[0] : null
   } catch (error) {
     console.error('Error fetching post from Payload:', error)
@@ -141,11 +171,17 @@ export async function getPostBySlug(slug: string): Promise<PostData | null> {
 
 
 export async function getNavigation(): Promise<NavigationData | null> {
+  const locale = await getRouteLocale()
+  return getNavigationCached(locale)
+}
+
+async function getNavigationCached(locale: string): Promise<NavigationData | null> {
   'use cache'
   cacheLife('minutes')
+  cacheTag(`navigation-${locale}`)
   cacheTag('navigation')
   try {
-    return await fetchPayload<NavigationData>('/globals/navigation')
+    return await fetchPayload<NavigationData>(withPayloadLocale('/globals/navigation', locale))
   } catch (error) {
     console.error('Error fetching navigation from Payload:', error)
     return null
@@ -153,11 +189,17 @@ export async function getNavigation(): Promise<NavigationData | null> {
 }
 
 export async function getFooter(): Promise<FooterData | null> {
+  const locale = await getRouteLocale()
+  return getFooterCached(locale)
+}
+
+async function getFooterCached(locale: string): Promise<FooterData | null> {
   'use cache'
   cacheLife('minutes')
+  cacheTag(`footer-${locale}`)
   cacheTag('footer')
   try {
-    return await fetchPayload<FooterData>('/globals/footer')
+    return await fetchPayload<FooterData>(withPayloadLocale('/globals/footer', locale))
   } catch (error) {
     console.error('Error fetching footer from Payload:', error)
     return null
@@ -166,7 +208,7 @@ export async function getFooter(): Promise<FooterData | null> {
 
 // Fetch and transform products for FeaturedProductsBlock from Vendure:
 export async function getVendureProductsForSlugs(slugs: string[]): Promise<any[]> {
-  const locale = 'en'
+  const locale = await getRouteLocale()
   const currencyCode = await getActiveCurrencyCode()
   return getVendureProductsForSlugsCached(slugs, locale, currencyCode)
 }
@@ -209,7 +251,7 @@ async function getVendureProductsForSlugsCached(slugs: string[], locale: string,
 }
 
 export async function getVendureProductById(id: string): Promise<any | null> {
-  const locale = 'en'
+  const locale = await getRouteLocale()
   const currencyCode = await getActiveCurrencyCode()
   return getVendureProductByIdCached(id, locale, currencyCode)
 }
@@ -245,5 +287,3 @@ async function getVendureProductByIdCached(id: string, locale: string, currencyC
     return null
   }
 }
-
-

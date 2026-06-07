@@ -1,10 +1,14 @@
-import {ResultOf} from '@/graphql';
+import {readFragment, ResultOf} from '@/graphql';
 import {ProductCard} from './product-card';
+import {ProductCardFragment} from '@/lib/vendure/fragments';
 import {Pagination} from '@/components/shared/pagination';
 import {SortDropdown} from './sort-dropdown';
 import {SearchProductsQuery} from "@/lib/vendure/queries";
 import {getRouteLocale} from '@/i18n/server';
 import {getTranslations} from 'next-intl/server';
+import {getActiveCurrencyCode} from '@/lib/currency-server';
+import {getProductCardPriceOverrides} from '@/lib/vendure/product-card-price-overrides';
+import type {ProductCardPrice} from '@/lib/vendure/product-card-price-overrides';
 
 interface ProductGridProps {
     productDataPromise: Promise<{
@@ -18,9 +22,13 @@ interface ProductGridProps {
 export async function ProductGrid({productDataPromise, currentPage, take}: ProductGridProps) {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Product'});
+    const currencyCode = await getActiveCurrencyCode();
     const result = await productDataPromise;
 
     const searchResult = result.data?.search;
+    const priceOverrides = searchResult
+        ? await getProductCardPriceOverrides(searchResult.items, currencyCode)
+        : {};
     const totalPages = searchResult ? Math.ceil(searchResult.totalItems / take) : 0;
 
     if (!searchResult || !searchResult.items.length) {
@@ -42,7 +50,11 @@ export async function ProductGrid({productDataPromise, currentPage, take}: Produ
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {searchResult.items.map((product, i) => (
-                    <ProductCard key={'product-grid-item' + i} product={product}/>
+                    <ProductGridItem
+                        key={'product-grid-item' + i}
+                        product={product}
+                        priceOverrides={priceOverrides}
+                    />
                 ))}
             </div>
 
@@ -51,4 +63,16 @@ export async function ProductGrid({productDataPromise, currentPage, take}: Produ
             )}
         </div>
     );
+}
+
+function ProductGridItem({
+    product: productProp,
+    priceOverrides,
+}: {
+    product: ResultOf<typeof SearchProductsQuery>['search']['items'][number];
+    priceOverrides: Record<string, ProductCardPrice>;
+}) {
+    const product = readFragment(ProductCardFragment, productProp);
+
+    return <ProductCard product={productProp} priceOverride={priceOverrides[product.productId]}/>;
 }

@@ -5,14 +5,18 @@ import {Price} from '@/components/commerce/price';
 import {Suspense} from "react";
 import { Link } from '@/i18n/navigation';
 import {useTranslations} from 'next-intl';
+import type {ProductCardPrice} from '@/lib/vendure/product-card-price-overrides';
 
 interface ProductCardProps {
     product: FragmentOf<typeof ProductCardFragment>;
+    priceOverride?: ProductCardPrice;
 }
 
-export function ProductCard({product: productProp}: ProductCardProps) {
+export function ProductCard({product: productProp, priceOverride}: ProductCardProps) {
     const t = useTranslations('Product');
     const product = readFragment(ProductCardFragment, productProp);
+    const priceWithTax = priceOverride?.priceWithTax ?? product.priceWithTax;
+    const currencyCode = priceOverride?.currencyCode ?? product.currencyCode;
 
     return (
         <Link
@@ -40,17 +44,17 @@ export function ProductCard({product: productProp}: ProductCardProps) {
                 </h3>
                 <Suspense fallback={<div className="h-8 w-36 rounded bg-muted"></div>}>
                     <p className="text-lg font-bold tracking-tight">
-                        {product.priceWithTax.__typename === 'PriceRange' ? (
-                            product.priceWithTax.min !== product.priceWithTax.max ? (
+                        {priceWithTax.__typename === 'PriceRange' ? (
+                            priceWithTax.min !== priceWithTax.max ? (
                                 <>
                                     <span className="text-xs font-normal text-muted-foreground mr-1">{t('from')}</span>
-                                    <Price value={product.priceWithTax.min} currencyCode={product.currencyCode}/>
+                                    <Price value={priceWithTax.min} currencyCode={currencyCode}/>
                                 </>
                             ) : (
-                                <Price value={product.priceWithTax.min} currencyCode={product.currencyCode}/>
+                                <Price value={priceWithTax.min} currencyCode={currencyCode}/>
                             )
-                        ) : product.priceWithTax.__typename === 'SinglePrice' ? (
-                            <Price value={product.priceWithTax.value} currencyCode={product.currencyCode}/>
+                        ) : priceWithTax.__typename === 'SinglePrice' ? (
+                            <Price value={priceWithTax.value} currencyCode={currencyCode}/>
                         ) : null}
                     </p>
                 </Suspense>

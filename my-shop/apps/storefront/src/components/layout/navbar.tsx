@@ -19,6 +19,23 @@ import {
     NavigationMenuItem,
 } from '@/components/ui/navigation-menu';
 
+const cmsLinkTranslations: Record<string, string> = {
+    'Shop': 'Cửa hàng',
+    'Deals': 'Ưu đãi',
+    'Summer Sale': 'Khuyến mãi hè',
+    'Terms of Service': 'Điều khoản dịch vụ',
+    'Privacy Policy': 'Chính sách bảo mật',
+    'About Us': 'Giới thiệu',
+    'Contact': 'Liên hệ',
+};
+
+function getCmsLinkLabel(label: string, locale: string) {
+    if (locale === 'vi') {
+        return cmsLinkTranslations[label] || label;
+    }
+    return label;
+}
+
 export async function Navbar({ locale }: { locale: string }) {
     const navigation = await getNavigation();
     const topAnnouncement = navigation?.topAnnouncement;
@@ -49,7 +66,7 @@ export async function Navbar({ locale }: { locale: string }) {
                                         {navigation.links.map((link, idx) => (
                                             <NavigationMenuItem key={idx}>
                                                 <NavbarLink href={link.url}>
-                                                    {link.label}
+                                                    {getCmsLinkLabel(link.label, locale)}
                                                 </NavbarLink>
                                             </NavigationMenuItem>
                                         ))}

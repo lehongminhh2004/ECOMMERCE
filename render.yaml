@@ -1,0 +1,58 @@
+services:
+  - type: web
+    name: my-shop-vendure
+    runtime: docker
+    plan: free
+    dockerfilePath: ./my-shop/apps/server/Dockerfile
+    dockerContext: ./my-shop
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: NODE_ENV
+        value: production
+      - key: DB_SSL
+        value: "true"
+      - key: DB_SCHEMA
+        value: public
+      - key: DB_SYNCHRONIZE
+        value: "false"
+      - key: VENDURE_DB_POOL_MAX
+        value: "6"
+      - key: RUN_WORKER_IN_PROCESS
+        value: "true"
+      - key: ASSET_URL_PREFIX
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: SUPERADMIN_USERNAME
+        sync: false
+      - key: SUPERADMIN_PASSWORD
+        sync: false
+
+  - type: web
+    name: my-shop-payload-cms
+    runtime: docker
+    plan: free
+    dockerfilePath: ./my-shop/apps/cms/Dockerfile
+    dockerContext: ./my-shop
+    healthCheckPath: /admin
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_SSL
+        value: "true"
+      - key: DB_PUSH
+        value: "true"
+      - key: PAYLOAD_DB_POOL_MAX
+        value: "4"
+      - key: DATABASE_URI
+        sync: false
+      - key: PAYLOAD_SECRET
+        generateValue: true
+      - key: STOREFRONT_REVALIDATE_URL
+        sync: false
+      - key: REVALIDATION_SECRET
+        sync: false

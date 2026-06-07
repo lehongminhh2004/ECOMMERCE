@@ -13,6 +13,11 @@ const TAG_RULES: ReadonlyArray<{match: string | RegExp; kind: TagKind}> = [
     {match: 'featured', kind: 'currency-dependent'},
     {match: /^collection-meta-.+$/, kind: 'locale-only'},
     {match: /^footer$/, kind: 'locale-only'},
+    {match: /^navigation$/, kind: 'locale-only'},
+    {match: /^pages$/, kind: 'locale-only'},
+    {match: /^page-.+$/, kind: 'locale-only'},
+    {match: /^posts$/, kind: 'locale-only'},
+    {match: /^post-.+$/, kind: 'locale-only'},
     {match: /^navbar-collections$/, kind: 'locale-only'},
     {match: /^mobile-nav$/, kind: 'locale-only'},
     {match: /^product-.+$/, kind: 'currency-dependent'},
@@ -84,6 +89,7 @@ export async function POST(request: NextRequest) {
             }
 
             const expanded: string[] = [];
+            expanded.push(tag); // Always revalidate the base tag itself
             if (kind === 'locale-only') {
                 for (const locale of routing.locales) {
                     expanded.push(`${tag}-${locale}`);

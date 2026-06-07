@@ -1,13 +1,13 @@
 import {defineRouting} from 'next-intl/routing';
 
 export const routing = defineRouting({
-    locales: ['en', 'de'],
-    defaultLocale: 'en',
+    locales: ['vi', 'en'],
+    defaultLocale: 'vi',
 });
 
 export type Locale = (typeof routing.locales)[number];
 
 export const localeNames: Record<Locale, string> = {
+    vi: 'Tiếng Việt',
     en: 'English',
-    de: 'Deutsch',
 };

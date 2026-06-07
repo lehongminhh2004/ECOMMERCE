@@ -97,7 +97,7 @@ async function HomepageContent() {
     const payloadPage = await getPageBySlug('home');
     if (payloadPage && payloadPage.layout) {
         return (
-            <div className="min-h-screen container mx-auto px-4 py-8">
+            <div className="min-h-screen container mx-auto px-4 pt-24 pb-8 md:pt-28">
                 <RenderBlocks blocks={payloadPage.layout} />
             </div>
         );

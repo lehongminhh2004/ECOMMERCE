@@ -1,0 +1,82 @@
+:root {
+  /* Scale font sizes globally in the admin panel */
+  --font-size-xsmall: 13px;
+  --font-size-small: 15px;
+  --font-size-base: 17px;
+}
+
+/* Sidebar navigation links */
+.nav__link {
+  font-size: 15px !important;
+  padding: 10px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+.nav__link:hover {
+  background-color: var(--theme-elevation-100) !important;
+  color: var(--theme-elevation-900) !important;
+  padding-left: 16px !important; /* Subtle hover slide animation */
+}
+
+/* Sidebar group headers (collapsible triggers) */
+.nav-group__toggle {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.07em !important;
+  padding: 12px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important; /* Push chevron to the far right like Vendure */
+  width: 100% !important;
+  cursor: pointer !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+.nav-group__toggle:hover {
+  background-color: var(--theme-elevation-50) !important;
+}
+
+/* Move the chevron group indicator to the far right */
+.nav-group__indicator {
+  margin-left: auto !important;
+  order: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Rotate indicator chevron when open/closed */
+.nav-group__toggle--open .nav-group__indicator {
+  transform: rotate(180deg) !important;
+}
+
+.nav-group__toggle--closed .nav-group__indicator {
+  transform: rotate(0deg) !important;
+}
+
+/* Move admin avatar icon to the left of the header */
+.app-header__controls-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  flex-direction: row !important;
+}
+
+.app-header__actions-wrapper {
+  order: 1 !important;
+  margin-right: 16px !important;
+  margin-left: 0 !important;
+}
+
+.app-header__step-nav-wrapper {
+  order: 2 !important;
+  margin-right: auto !important;
+  margin-left: 0 !important;
+}
