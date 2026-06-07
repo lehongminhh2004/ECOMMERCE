@@ -36,6 +36,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 COPY --from=builder /app/apps/server/static ./apps/server/static
+COPY --from=builder /app/apps/server/dist/dashboard ./apps/server/dist/dashboard
 
 # Expose backend port
 EXPOSE 3000

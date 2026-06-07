@@ -16,6 +16,9 @@ const IS_DEV = process.env.APP_ENV === 'dev';
 const serverPort = +process.env.PORT || 3000;
 const dbSslEnabled = process.env.DB_SSL === 'true';
 const dbPoolMax = +(process.env.VENDURE_DB_POOL_MAX || 6);
+const healthCheckMiddleware = (_req: any, res: any) => {
+    res.status(200).json({ status: 'ok' });
+};
 const dbConnectionOptions = process.env.DATABASE_URL
     ? {
         url: process.env.DATABASE_URL,
@@ -34,6 +37,11 @@ export const config: VendureConfig = {
         adminApiPath: 'admin-api',
         shopApiPath: 'shop-api',
         trustProxy: IS_DEV ? false : 1,
+        middleware: [{
+            route: 'health',
+            handler: healthCheckMiddleware,
+            beforeListen: true,
+        }],
         // The following options are useful in development mode,
         // but are best turned off for production for security
         // reasons.

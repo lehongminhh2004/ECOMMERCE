@@ -3,6 +3,27 @@ import createNextIntlPlugin from 'next-intl/plugin';
 import path from 'node:path';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const remoteImagePatterns = [
+    process.env.NEXT_PUBLIC_VENDURE_SHOP_API_URL,
+    process.env.VENDURE_SHOP_API_URL,
+    process.env.NEXT_PUBLIC_PAYLOAD_API_URL,
+    process.env.PAYLOAD_API_URL,
+]
+    .flatMap((value) => {
+        if (!value) {
+            return [];
+        }
+        try {
+            const url = new URL(value);
+            return [{
+                protocol: url.protocol.replace(':', '') as 'http' | 'https',
+                hostname: url.hostname,
+                port: url.port || undefined,
+            }];
+        } catch {
+            return [];
+        }
+    });
 
 const nextConfig: NextConfig = {
     output: 'standalone',
@@ -29,7 +50,8 @@ const nextConfig: NextConfig = {
             {
                 protocol: 'https',
                 hostname: 'res.cloudinary.com'
-            }
+            },
+            ...remoteImagePatterns,
         ],
     },
     experimental: {
