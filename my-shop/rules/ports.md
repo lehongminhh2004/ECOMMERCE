@@ -23,8 +23,12 @@
 - Storefront server-side code uses `VENDURE_SHOP_API_URL` and `PAYLOAD_API_URL`.
 - Browser/client-facing values use `NEXT_PUBLIC_VENDURE_SHOP_API_URL` and `NEXT_PUBLIC_PAYLOAD_API_URL`.
 - Do not use Docker service names such as `vendure_server` or `payload_cms` in the active Vercel + Render deployment path.
+- Vendure URLs used by Storefront must be absolute and end with `/shop-api`.
+- Payload URLs used by Storefront must be absolute and end with `/api`.
+- Do not paste placeholder values such as `https://api.example.com`, `[REDACTED]`, or `https://<service>.onrender.com/...` into provider dashboards.
 
 ## Constraints
 
 - Do not bind another service to ports `3000`, `3001`, `3002`, or `5173`.
 - Do not assume a local Docker Postgres port. Use local env or a cloud Postgres connection string.
+- Render sets `PORT` dynamically. Vendure and Payload must bind to the provider-provided port in production.

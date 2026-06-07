@@ -23,6 +23,8 @@ The old GHCR + SSH + Docker Compose + Nginx deployment path has been removed.
 
 ## Important Files
 
+- `AGENTS.md`: repository rules for coding agents.
+- `rules/`: architecture, ports, deployment/runtime and styling rules.
 - `../render.yaml`: Render Blueprint for Vendure and Payload CMS.
 - `.env.free-tier.example`: environment variable reference for Vercel and Render.
 - `docs/free-tier-deployment-guide.md`: step-by-step deployment guide.

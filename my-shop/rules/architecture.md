@@ -36,6 +36,8 @@ The active deployment direction is the free-tier provider setup:
 
 The old GHCR + SSH + Docker Compose + Nginx deployment path has been removed.
 
+For deployment/runtime constraints, environment variable shape, Render/Vercel ownership and cold-start rules, also follow `rules/deployment-runtime.md`.
+
 ## 3. CI/CD Rules
 
 - GitHub Actions should validate code only: lint, typecheck and build.
@@ -78,3 +80,5 @@ The old GHCR + SSH + Docker Compose + Nginx deployment path has been removed.
 - Add new files only when they fit an existing domain/module boundary.
 - Do not duplicate API clients or currency/locale logic.
 - Keep changes minimal and scoped to the requested behavior.
+- Do not let Storefront build-time rendering depend on Vendure or Payload being awake and reachable.
+- Validate environment-derived URLs before using URL parsing or fetch logic.
