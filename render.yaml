@@ -20,7 +20,7 @@ services:
       - key: VENDURE_DB_POOL_MAX
         value: "6"
       - key: RUN_WORKER_IN_PROCESS
-        value: "true"
+        value: "false"
       - key: ASSET_URL_PREFIX
         sync: false
       - key: DATABASE_URL
