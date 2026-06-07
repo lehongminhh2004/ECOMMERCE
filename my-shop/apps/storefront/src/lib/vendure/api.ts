@@ -8,10 +8,6 @@ const VENDURE_AUTH_TOKEN_HEADER = process.env.VENDURE_AUTH_TOKEN_HEADER || 'vend
 const VENDURE_CHANNEL_TOKEN_HEADER = process.env.VENDURE_CHANNEL_TOKEN_HEADER || 'vendure-token';
 const VENDURE_FETCH_TIMEOUT_MS = +(process.env.VENDURE_FETCH_TIMEOUT_MS || 8000);
 
-if (!VENDURE_API_URL) {
-    throw new Error('VENDURE_SHOP_API_URL or NEXT_PUBLIC_VENDURE_SHOP_API_URL environment variable is not set');
-}
-
 interface VendureRequestOptions {
     token?: string;
     useAuthToken?: boolean;
@@ -34,6 +30,19 @@ function extractAuthToken(headers: Headers): string | null {
     return headers.get(VENDURE_AUTH_TOKEN_HEADER);
 }
 
+function getVendureApiUrl(): URL | null {
+    if (!VENDURE_API_URL) {
+        console.error('VENDURE_SHOP_API_URL or NEXT_PUBLIC_VENDURE_SHOP_API_URL environment variable is not set');
+        return null;
+    }
+
+    try {
+        return new URL(VENDURE_API_URL);
+    } catch {
+        console.error('Invalid Vendure Shop API URL. Expected an absolute URL ending in /shop-api.');
+        return null;
+    }
+}
 
 /**
  * Execute a GraphQL query against the Vendure API
@@ -72,7 +81,13 @@ export async function query<TResult, TVariables>(
     // Set the channel token header (use provided channelToken or default)
     headers[VENDURE_CHANNEL_TOKEN_HEADER] = channelToken || VENDURE_CHANNEL_TOKEN;
 
-    const url = new URL(VENDURE_API_URL!);
+    const url = getVendureApiUrl();
+    if (!url) {
+        return {
+            data: {} as TResult,
+        };
+    }
+
     if (languageCode) {
         url.searchParams.set('languageCode', languageCode);
     }
