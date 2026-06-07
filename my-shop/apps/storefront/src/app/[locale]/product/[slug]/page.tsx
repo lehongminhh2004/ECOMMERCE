@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense, cache } from 'react';
 import { Link } from '@/i18n/navigation';
 import { query } from '@/lib/vendure/api';
 import { GetProductDetailQuery } from '@/lib/vendure/queries';
@@ -34,7 +35,7 @@ import {toOgLocale} from '@/i18n/locale-utils';
 import {getActiveCurrencyCode} from '@/lib/currency-server';
 import {getRouteLocale} from '@/i18n/server';
 
-async function getProductData(slug: string, currencyCode: string) {
+const getProductData = cache(async (slug: string, currencyCode: string) => {
     'use cache';
     cacheLife('hours');
 
@@ -43,7 +44,7 @@ async function getProductData(slug: string, currencyCode: string) {
     cacheTag('products');
 
     return await query(GetProductDetailQuery, {slug}, {languageCode: locale, currencyCode});
-}
+});
 
 export async function generateMetadata({
     params,
@@ -209,10 +210,22 @@ export default async function ProductDetailPage({params, searchParams}: PageProp
             </section>
 
             {primaryCollection && (
-                <RelatedProducts
-                    collectionSlug={primaryCollection.slug}
-                    currentProductId={product.id}
-                />
+                <Suspense fallback={
+                    <div className="container mx-auto px-4 py-16 animate-pulse border-t border-border/50">
+                        <div className="h-8 bg-muted rounded w-48 mb-6"></div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div className="aspect-square bg-muted rounded-xl"></div>
+                            <div className="aspect-square bg-muted rounded-xl"></div>
+                            <div className="aspect-square bg-muted rounded-xl"></div>
+                            <div className="aspect-square bg-muted rounded-xl"></div>
+                        </div>
+                    </div>
+                }>
+                    <RelatedProducts
+                        collectionSlug={primaryCollection.slug}
+                        currentProductId={product.id}
+                    />
+                </Suspense>
             )}
         </>
     );

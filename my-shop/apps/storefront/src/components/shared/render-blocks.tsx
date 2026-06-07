@@ -3,7 +3,7 @@ import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { ProductCarousel } from '@/components/commerce/product-carousel'
 import { ProductCard } from '@/components/commerce/product-card'
-import { getVendureProductsForSlugs, getVendureProductById, type PageBlock } from '@/lib/payload/api'
+import { getVendureProductsForSlugs, getVendureProductById, getPosts, type PageBlock } from '@/lib/payload/api'
 
 
 // Lexical RichText Renderer
@@ -258,6 +258,83 @@ interface RenderBlocksProps {
   blocks?: PageBlock[]
 }
 
+export function BlogPostsSkeleton() {
+  return (
+    <div className="mb-16 space-y-4">
+      <div className="h-8 bg-muted animate-pulse rounded w-48 mb-6" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="bg-card rounded-xl overflow-hidden border border-border w-full">
+            <div className="aspect-square bg-muted animate-pulse" />
+            <div className="p-4 space-y-2">
+              <div className="h-5 bg-muted animate-pulse rounded w-3/4" />
+              <div className="h-4 bg-muted animate-pulse rounded w-1/2" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// 5. Blog Posts Block Component
+interface BlogPostsProps {
+  title: string
+  limit?: number
+}
+
+export async function BlogPostsBlockComponent({ title, limit }: BlogPostsProps) {
+  const posts = await getPosts(limit)
+  if (!posts || posts.length === 0) return null
+
+  return (
+    <div className="mb-16">
+      <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-8">
+        {title}
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
+        {posts.map((post) => {
+          const coverUrl = post.coverImage?.url
+            ? (post.coverImage.url.startsWith('http') ? post.coverImage.url : `http://localhost:3002${post.coverImage.url}`)
+            : null
+
+          return (
+            <Link
+              key={post.id}
+              href={`/blog/${post.slug}`}
+              className="group block bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="aspect-square relative bg-muted overflow-hidden">
+                {coverUrl ? (
+                  <img
+                    src={coverUrl}
+                    alt={post.coverImage?.alt || post.title}
+                    className="object-cover w-full h-full group-hover:scale-105 group-hover:opacity-90 transition-all duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted/50">
+                    No Image
+                  </div>
+                )}
+              </div>
+              <div className="p-4 space-y-2">
+                <h3 className="font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                  {post.title}
+                </h3>
+                {post.category && (
+                  <span className="inline-block text-xs font-semibold uppercase tracking-wider text-primary">
+                    {post.category.name}
+                  </span>
+                )}
+              </div>
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export function RenderBlocks({ blocks }: RenderBlocksProps) {
   if (!blocks || !Array.isArray(blocks)) return null
 
@@ -279,6 +356,13 @@ export function RenderBlocks({ blocks }: RenderBlocksProps) {
             return <ContentBlockComponent key={idx} {...block} />
           case 'ctaBlock':
             return <CallToActionBlockComponent key={idx} {...block} />
+          case 'blogPosts':
+            // @ts-ignore
+            return (
+              <Suspense key={idx} fallback={<BlogPostsSkeleton />}>
+                <BlogPostsBlockComponent {...block} />
+              </Suspense>
+            )
           default:
             return null
         }

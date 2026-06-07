@@ -46,7 +46,13 @@ export interface CallToActionBlock {
   buttonLink?: string
 }
 
-export type PageBlock = HeroBlock | FeaturedProductsBlock | ContentBlock | CallToActionBlock
+export interface BlogPostsBlock {
+  blockType: 'blogPosts'
+  title: string
+  limit?: number
+}
+
+export type PageBlock = HeroBlock | FeaturedProductsBlock | ContentBlock | CallToActionBlock | BlogPostsBlock
 
 export interface PageData {
   id: string
@@ -136,18 +142,21 @@ async function getPageBySlugCached(slug: string, locale: string): Promise<PageDa
   }
 }
 
-export async function getPosts(): Promise<PostData[]> {
+export async function getPosts(limit?: number): Promise<PostData[]> {
   const locale = await getRouteLocale()
-  return getPostsCached(locale)
+  return getPostsCached(locale, limit)
 }
 
-async function getPostsCached(locale: string): Promise<PostData[]> {
+async function getPostsCached(locale: string, limit?: number): Promise<PostData[]> {
   'use cache'
   cacheLife('minutes')
   cacheTag(`posts-${locale}`)
   cacheTag('posts')
   try {
-    const data = await fetchPayload<{ docs: PostData[] }>(withPayloadLocale('/posts?sort=-createdAt', locale))
+    const limitQuery = limit ? `&limit=${limit}` : ''
+    const data = await fetchPayload<{ docs: PostData[] }>(
+      withPayloadLocale(`/posts?sort=-createdAt${limitQuery}`, locale)
+    )
     return data.docs
   } catch (error) {
     console.error('Error fetching posts from Payload:', error)

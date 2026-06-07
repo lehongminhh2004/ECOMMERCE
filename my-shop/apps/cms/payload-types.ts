@@ -65,7 +65,9 @@ export interface Config {
   auth: {
     users: UserAuthOperations;
   };
-  blocks: {};
+  blocks: {
+    vendureProduct: VendureProductBlock;
+  };
   collections: {
     users: User;
     media: Media;
@@ -92,7 +94,7 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('vi' | 'en') | ('vi' | 'en')[];
   globals: {
     navigation: Navigation;
     footer: Footer;
@@ -101,7 +103,7 @@ export interface Config {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
   };
-  locale: null;
+  locale: 'vi' | 'en';
   widgets: {
     collections: CollectionsWidget;
   };
@@ -128,6 +130,16 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VendureProductBlock".
+ */
+export interface VendureProductBlock {
+  productId: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'vendureProduct';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -273,6 +285,13 @@ export interface Page {
             id?: string | null;
             blockName?: string | null;
             blockType: 'ctaBlock';
+          }
+        | {
+            title: string;
+            limit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'blogPosts';
           }
       )[]
     | null;
@@ -480,6 +499,14 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        blogPosts?:
+          | T
+          | {
+              title?: T;
+              limit?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;
@@ -615,16 +642,6 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "VendureProductBlock".
- */
-export interface VendureProductBlock {
-  productId: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'vendureProduct';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

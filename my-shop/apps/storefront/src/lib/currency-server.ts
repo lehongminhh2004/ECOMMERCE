@@ -2,6 +2,7 @@ import {getCurrencyCookie} from './currency';
 import {getRouteLocale} from '@/i18n/server';
 import {getDefaultCurrencyForLocale} from './currency-utils';
 import {getActiveChannelCached} from './vendure/cached';
+import {getLocale} from 'next-intl/server';
 
 /**
  * Get the active currency code for the current request.
@@ -13,7 +14,15 @@ import {getActiveChannelCached} from './vendure/cached';
  */
 export async function getActiveCurrencyCode(): Promise<string> {
     const channel = await getActiveChannelCached();
-    const locale = await getRouteLocale();
+    
+    let locale: string;
+    try {
+        locale = await getRouteLocale();
+    } catch {
+        // Fallback for Server Actions where route params context (next/root-params) is not available
+        locale = await getLocale();
+    }
+
     const localeCurrency = getDefaultCurrencyForLocale(locale);
 
     if (Array.isArray(channel.availableCurrencyCodes) && channel.availableCurrencyCodes.includes(localeCurrency as any)) {
