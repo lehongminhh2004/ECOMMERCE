@@ -3,7 +3,7 @@ import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { ProductCarousel } from '@/components/commerce/product-carousel'
 import { ProductCard } from '@/components/commerce/product-card'
-import { getVendureProductsForSlugs, getVendureProductById, getPosts, type PageBlock } from '@/lib/payload/api'
+import { getPayloadMediaUrl, getVendureProductsForSlugs, getVendureProductById, getPosts, type PageBlock } from '@/lib/payload/api'
 
 
 // Lexical RichText Renderer
@@ -153,7 +153,7 @@ interface HeroProps {
 
 export function HeroBlockComponent({ title, subtitle, backgroundImage, ctaText, ctaLink }: HeroProps) {
   const imageUrl = backgroundImage && typeof backgroundImage === 'object' && backgroundImage.url
-    ? (backgroundImage.url.startsWith('http') ? backgroundImage.url : `http://localhost:3002${backgroundImage.url}`)
+    ? getPayloadMediaUrl(backgroundImage.url)
     : ''
 
   return (
@@ -294,9 +294,7 @@ export async function BlogPostsBlockComponent({ title, limit }: BlogPostsProps) 
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
         {posts.map((post) => {
-          const coverUrl = post.coverImage?.url
-            ? (post.coverImage.url.startsWith('http') ? post.coverImage.url : `http://localhost:3002${post.coverImage.url}`)
-            : null
+          const coverUrl = getPayloadMediaUrl(post.coverImage?.url)
 
           return (
             <Link

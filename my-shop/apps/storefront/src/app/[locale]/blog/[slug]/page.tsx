@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
-import { getPostBySlug, getPosts } from '@/lib/payload/api'
+import { getPayloadMediaUrl, getPostBySlug, getPosts } from '@/lib/payload/api'
 import { LexicalRenderer } from '@/components/shared/render-blocks'
 import { Calendar, User, ArrowLeft, BookOpen } from 'lucide-react'
 import { Container } from '@/components/layout/container'
@@ -57,9 +57,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
     notFound()
   }
 
-  const coverUrl = post.coverImage?.url
-    ? (post.coverImage.url.startsWith('http') ? post.coverImage.url : `http://localhost:3002${post.coverImage.url}`)
-    : null
+  const coverUrl = getPayloadMediaUrl(post.coverImage?.url)
 
   return (
     <Container className="max-w-3xl min-h-screen">

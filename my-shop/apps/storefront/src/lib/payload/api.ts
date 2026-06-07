@@ -7,6 +7,7 @@ import { cacheLife, cacheTag } from 'next/cache'
 
 
 const PAYLOAD_API_URL = process.env.PAYLOAD_API_URL || process.env.NEXT_PUBLIC_PAYLOAD_API_URL || 'http://localhost:3002/api'
+const PAYLOAD_PUBLIC_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL || PAYLOAD_API_URL.replace(/\/api\/?$/, '')
 const PAYLOAD_FALLBACK_LOCALE = 'en'
 const PAYLOAD_FETCH_TIMEOUT_MS = +(process.env.PAYLOAD_FETCH_TIMEOUT_MS || 8000)
 
@@ -118,6 +119,12 @@ function withPayloadLocale(path: string, locale: string): string {
   const encodedLocale = encodeURIComponent(locale)
   const encodedFallbackLocale = encodeURIComponent(PAYLOAD_FALLBACK_LOCALE)
   return `${path}${separator}locale=${encodedLocale}&fallback-locale=${encodedFallbackLocale}`
+}
+
+export function getPayloadMediaUrl(url?: string | null): string | null {
+  if (!url) return null
+  if (url.startsWith('http')) return url
+  return `${PAYLOAD_PUBLIC_URL}${url.startsWith('/') ? url : `/${url}`}`
 }
 
 export async function getPageBySlug(slug: string): Promise<PageData | null> {

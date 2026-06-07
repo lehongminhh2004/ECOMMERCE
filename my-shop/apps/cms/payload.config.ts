@@ -102,11 +102,16 @@ export default buildConfig({
     },
     {
       slug: 'posts',
+      labels: {
+        singular: 'Discount Post',
+        plural: 'Discount Posts',
+      },
       access: {
         read: () => true,
       },
       admin: {
         useAsTitle: 'title',
+        description: 'Create and manage discount articles that can be displayed as storefront cards.',
       },
       fields: [
         {
@@ -290,16 +295,25 @@ export default buildConfig({
             },
             {
               slug: 'blogPosts',
+              labels: {
+                singular: 'Discount Cards',
+                plural: 'Discount Cards',
+              },
               fields: [
                 {
                   name: 'title',
+                  label: 'Section title',
                   type: 'text',
                   required: true,
                   localized: true,
                 },
                 {
                   name: 'limit',
+                  label: 'Number of posts',
                   type: 'number',
+                  admin: {
+                    description: 'Leave empty to show all discount posts.',
+                  },
                 },
               ],
             },

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Link } from '@/i18n/navigation'
-import { getPosts } from '@/lib/payload/api'
+import { getPayloadMediaUrl, getPosts } from '@/lib/payload/api'
 import { Calendar, User, BookOpen } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -33,9 +33,7 @@ export default async function BlogIndexPage() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post) => {
-            const coverUrl = post.coverImage?.url
-              ? (post.coverImage.url.startsWith('http') ? post.coverImage.url : `http://localhost:3002${post.coverImage.url}`)
-              : null
+            const coverUrl = getPayloadMediaUrl(post.coverImage?.url)
 
             return (
               <article

@@ -197,6 +197,8 @@ export interface Category {
   createdAt: string;
 }
 /**
+ * Create and manage discount articles that can be displayed as storefront cards.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
@@ -288,6 +290,9 @@ export interface Page {
           }
         | {
             title: string;
+            /**
+             * Leave empty to show all discount posts.
+             */
             limit?: number | null;
             id?: string | null;
             blockName?: string | null;
