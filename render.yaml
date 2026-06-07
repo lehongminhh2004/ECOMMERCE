@@ -22,7 +22,7 @@ services:
       - key: RUN_WORKER_IN_PROCESS
         value: "false"
       - key: ASSET_URL_PREFIX
-        sync: false
+        value: https://my-shop-vendure.onrender.com/assets
       - key: DATABASE_URL
         sync: false
       - key: COOKIE_SECRET
