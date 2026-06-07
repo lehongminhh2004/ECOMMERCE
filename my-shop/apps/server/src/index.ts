@@ -1,10 +1,21 @@
 import { bootstrap, bootstrapWorker, DefaultSchedulerPlugin, runMigrations, VendureConfig } from '@vendure/core';
 import { config } from './vendure-config';
 
+function getPluginName(plugin: unknown): string | undefined {
+    if (typeof plugin === 'function') {
+        return plugin.name;
+    }
+
+    if (plugin && typeof plugin === 'object') {
+        const pluginRecord = plugin as { name?: string; plugin?: { name?: string } };
+        return pluginRecord.name || pluginRecord.plugin?.name;
+    }
+}
+
 function omitSchedulerPlugin(vendureConfig: VendureConfig): VendureConfig {
     return {
         ...vendureConfig,
-        plugins: (vendureConfig.plugins || []).filter(plugin => plugin !== DefaultSchedulerPlugin),
+        plugins: (vendureConfig.plugins || []).filter(plugin => getPluginName(plugin) !== DefaultSchedulerPlugin.name),
     };
 }
 
