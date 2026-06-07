@@ -1,18 +1,18 @@
 import Image from "next/image";
-import {NavigationLink} from '@/components/shared/navigation-link';
-import {NavbarCollections} from '@/components/layout/navbar/navbar-collections';
-import {NavbarCart} from '@/components/layout/navbar/navbar-cart';
-import {NavbarUser} from '@/components/layout/navbar/navbar-user';
-import {ThemeSwitcher} from '@/components/layout/navbar/theme-switcher';
-import {LanguagePicker} from '@/components/layout/navbar/language-picker';
-import {CurrencyPickerWrapper} from '@/components/layout/navbar/currency-picker-wrapper';
-import {MobileNavWrapper} from '@/components/layout/navbar/mobile-nav-wrapper';
-import {Suspense} from "react";
-import {SearchInput} from '@/components/layout/search-input';
-import {NavbarUserSkeleton} from '@/components/shared/skeletons/navbar-user-skeleton';
-import {SearchInputSkeleton} from '@/components/shared/skeletons/search-input-skeleton';
-import {getNavigation} from "@/lib/payload/api";
-import {NavbarLink} from '@/components/layout/navbar/navbar-link';
+import { NavigationLink } from '@/components/shared/navigation-link';
+import { NavbarCollections } from '@/components/layout/navbar/navbar-collections';
+import { NavbarCart } from '@/components/layout/navbar/navbar-cart';
+import { NavbarUser } from '@/components/layout/navbar/navbar-user';
+import { ThemeSwitcher } from '@/components/layout/navbar/theme-switcher';
+import { LanguagePicker } from '@/components/layout/navbar/language-picker';
+import { CurrencyPickerWrapper } from '@/components/layout/navbar/currency-picker-wrapper';
+import { MobileNavWrapper } from '@/components/layout/navbar/mobile-nav-wrapper';
+import { Suspense } from "react";
+import { SearchInput } from '@/components/layout/search-input';
+import { NavbarUserSkeleton } from '@/components/shared/skeletons/navbar-user-skeleton';
+import { SearchInputSkeleton } from '@/components/shared/skeletons/search-input-skeleton';
+import { getNavigation } from "@/lib/payload/api";
+import { NavbarLink } from '@/components/layout/navbar/navbar-link';
 import {
     NavigationMenu,
     NavigationMenuList,
@@ -29,6 +29,10 @@ const cmsLinkTranslations: Record<string, string> = {
     'Contact': 'Liên hệ',
 };
 
+const fallbackNavigationLinks = [
+    { label: 'Shop', url: '/search' },
+];
+
 function getCmsLinkLabel(label: string, locale: string) {
     if (locale === 'vi') {
         return cmsLinkTranslations[label] || label;
@@ -39,6 +43,7 @@ function getCmsLinkLabel(label: string, locale: string) {
 export async function Navbar({ locale }: { locale: string }) {
     const navigation = await getNavigation();
     const topAnnouncement = navigation?.topAnnouncement;
+    const navigationLinks = navigation?.links?.length ? navigation.links : fallbackNavigationLinks;
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-md bg-background/80">
@@ -60,10 +65,10 @@ export async function Navbar({ locale }: { locale: string }) {
                             <Suspense>
                                 <NavbarCollections locale={locale} />
                             </Suspense>
-                            {navigation?.links && navigation.links.length > 0 && (
+                            {navigationLinks.length > 0 && (
                                 <NavigationMenu>
                                     <NavigationMenuList>
-                                        {navigation.links.map((link, idx) => (
+                                        {navigationLinks.map((link, idx) => (
                                             <NavigationMenuItem key={idx}>
                                                 <NavbarLink href={link.url}>
                                                     {getCmsLinkLabel(link.label, locale)}
@@ -102,4 +107,3 @@ export async function Navbar({ locale }: { locale: string }) {
         </header>
     );
 }
-
