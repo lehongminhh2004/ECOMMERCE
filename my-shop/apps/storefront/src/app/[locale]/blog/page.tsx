@@ -1,39 +1,47 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
+import { getRouteLocale } from '@/i18n/server'
 import { Link } from '@/i18n/navigation'
 import { getPayloadMediaUrl, getPosts } from '@/lib/payload/api'
 import { Calendar, User, BookOpen } from 'lucide-react'
 
-export const metadata: Metadata = {
-  title: 'Blog - Insights & Updates',
-  description: 'Explore the latest articles, tutorials, and stories from our team.',
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRouteLocale()
+  const t = await getTranslations({ locale, namespace: 'Blog' })
+  return {
+    title: t('pageTitle'),
+    description: t('pageDescription'),
+  }
 }
 
 export default async function BlogIndexPage() {
+  const locale = await getRouteLocale()
+  const t = await getTranslations({ locale, namespace: 'Blog' })
   const posts = await getPosts()
 
   return (
     <div className="container mx-auto px-4 py-12 md:py-16 max-w-6xl min-h-screen">
       <div className="text-center max-w-2xl mx-auto mb-16">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-400 bg-clip-text text-transparent">
-          Our Blog
+          {t('heading')}
         </h1>
         <p className="text-lg text-neutral-600 dark:text-neutral-400">
-          Stay updated with our latest news, insights, and stories.
+          {t('subheading')}
         </p>
       </div>
 
       {posts.length === 0 ? (
         <div className="text-center py-20 border border-dashed rounded-3xl border-neutral-300 dark:border-neutral-700">
           <BookOpen className="size-12 mx-auto text-neutral-400 mb-4" />
-          <h3 className="text-xl font-bold mb-2">No Articles Yet</h3>
+          <h3 className="text-xl font-bold mb-2">{t('noArticles')}</h3>
           <p className="text-neutral-500 max-w-md mx-auto">
-            Check back later for interesting stories, guides, and news.
+            {t('noArticlesDesc')}
           </p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post) => {
-            const coverUrl = getPayloadMediaUrl(post.coverImage?.url)
+            const coverUrl = getPayloadMediaUrl(post.coverImage?.url ?? null)
 
             return (
               <article
@@ -75,7 +83,7 @@ export default async function BlogIndexPage() {
                     )}
                     <div className="flex items-center gap-1">
                       <Calendar className="size-3.5" />
-                      <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                      <span>{new Date(post.createdAt).toLocaleDateString(locale)}</span>
                     </div>
                   </div>
                 </div>

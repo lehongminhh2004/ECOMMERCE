@@ -461,5 +461,29 @@
     "failedPasswordReset": "Yêu cầu đặt lại mật khẩu thất bại",
     "verificationTokenRequired": "Yêu cầu mã xác thực",
     "failedAddToCart": "Thêm sản phẩm vào giỏ hàng thất bại"
+  },
+  "SummerSale": {
+    "pageTitle": "Khuyến Mãi Hè",
+    "heroTitle": "Khuyến Mãi Hè 2026",
+    "heroSubtitle": "Ưu đãi tốt nhất trong mùa hè — giảm đến 50% sản phẩm chọn lọc.",
+    "badge": "🔥 Thời Gian Có Hạn",
+    "dealsTitle": "Ưu Đãi Độc Quyền",
+    "dealsCount": "ưu đãi đang có",
+    "noDeals": "Chưa có ưu đãi nào",
+    "noDealsDesc": "Quay lại sớm để không bỏ lỡ các chương trình khuyến mãi hè hấp dẫn.",
+    "shopNow": "Mua Ngay",
+    "viewAll": "Xem Tất Cả Ưu Đãi",
+    "expiresIn": "Hết hạn sau",
+    "expired": "Đã hết hạn"
+  },
+  "Blog": {
+    "pageTitle": "Blog - Tin Tức & Chia Sẻ",
+    "pageDescription": "Khám phá các bài viết, hướng dẫn và câu chuyện mới nhất từ đội ngũ của chúng tôi.",
+    "heading": "Tin Tức & Chia Sẻ",
+    "subheading": "Cập nhật những tin tức, chia sẻ và câu chuyện mới nhất từ chúng tôi.",
+    "noArticles": "Chưa Có Bài Viết Nào",
+    "noArticlesDesc": "Quay lại sau để xem các câu chuyện, hướng dẫn và tin tức thú vị.",
+    "backToArticles": "Quay lại tất cả bài viết",
+    "noContent": "Bài viết này chưa có nội dung."
   }
 }

@@ -50,7 +50,7 @@ export interface CallToActionBlock {
 export interface BlogPostsBlock {
   blockType: 'blogPosts'
   title: string
-  limit?: number
+  limit?: number | null
 }
 
 export type PageBlock = HeroBlock | FeaturedProductsBlock | ContentBlock | CallToActionBlock | BlogPostsBlock
@@ -69,6 +69,12 @@ export interface PostData {
   coverImage?: Media
   category?: { name: string; slug: string }
   author?: { name: string }
+  /** Localized short label for the discount badge, e.g. "30% OFF" or "Giảm 30%" */
+  discountLabel?: string | null
+  /** Numeric discount percentage 0-100, used for badge color */
+  discountPercent?: number | null
+  /** ISO date string of offer expiry; shown as countdown on card */
+  expiresAt?: string | null
   content?: any
   createdAt: string
 }
@@ -149,20 +155,23 @@ async function getPageBySlugCached(slug: string, locale: string): Promise<PageDa
   }
 }
 
-export async function getPosts(limit?: number): Promise<PostData[]> {
+export async function getPosts(limit?: number | null): Promise<PostData[]> {
   const locale = await getRouteLocale()
   return getPostsCached(locale, limit)
 }
 
-async function getPostsCached(locale: string, limit?: number): Promise<PostData[]> {
+async function getPostsCached(locale: string, limit?: number | null): Promise<PostData[]> {
   'use cache'
   cacheLife('minutes')
   cacheTag(`posts-${locale}`)
   cacheTag('posts')
   try {
-    const limitQuery = limit ? `&limit=${limit}` : ''
+    const normalizedLimit = typeof limit === 'number' && Number.isFinite(limit) && limit > 0
+      ? Math.floor(limit)
+      : null
+    const limitQuery = normalizedLimit ? `&limit=${normalizedLimit}` : ''
     const data = await fetchPayload<{ docs: PostData[] }>(
-      withPayloadLocale(`/posts?sort=-createdAt${limitQuery}`, locale)
+      withPayloadLocale(`/posts?sort=-createdAt${limitQuery}&depth=1`, locale)
     )
     return data.docs
   } catch (error) {
@@ -184,7 +193,7 @@ async function getPostBySlugCached(slug: string, locale: string): Promise<PostDa
   cacheTag('posts')
   try {
     const data = await fetchPayload<{ docs: PostData[] }>(
-      withPayloadLocale(`/posts?where[slug][equals]=${encodeURIComponent(slug)}`, locale)
+      withPayloadLocale(`/posts?where[slug][equals]=${encodeURIComponent(slug)}&depth=1`, locale)
     )
     return data.docs.length > 0 ? data.docs[0] : null
   } catch (error) {
@@ -192,7 +201,6 @@ async function getPostBySlugCached(slug: string, locale: string): Promise<PostDa
     return null
   }
 }
-
 
 export async function getNavigation(): Promise<NavigationData | null> {
   const locale = await getRouteLocale()

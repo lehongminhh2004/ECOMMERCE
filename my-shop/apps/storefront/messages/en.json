@@ -461,5 +461,29 @@
     "failedPasswordReset": "Failed to request password reset",
     "verificationTokenRequired": "Verification token is required",
     "failedAddToCart": "Failed to add item to cart"
+  },
+  "SummerSale": {
+    "pageTitle": "Summer Sale",
+    "heroTitle": "Summer Sale 2026",
+    "heroSubtitle": "Best deals of the season — up to 50% off on top products.",
+    "badge": "🔥 Limited Time Offer",
+    "dealsTitle": "Exclusive Deals",
+    "dealsCount": "deals available",
+    "noDeals": "No deals available yet",
+    "noDealsDesc": "Check back soon for exciting summer promotions.",
+    "shopNow": "Shop Now",
+    "viewAll": "View All Deals",
+    "expiresIn": "Expires in",
+    "expired": "Expired"
+  },
+  "Blog": {
+    "pageTitle": "Blog - Insights & Updates",
+    "pageDescription": "Explore the latest articles, tutorials, and stories from our team.",
+    "heading": "Our Blog",
+    "subheading": "Stay updated with our latest news, insights, and stories.",
+    "noArticles": "No Articles Yet",
+    "noArticlesDesc": "Check back later for interesting stories, guides, and news.",
+    "backToArticles": "Back to all articles",
+    "noContent": "No content in this post."
   }
 }

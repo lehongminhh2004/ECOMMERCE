@@ -103,15 +103,18 @@ export default buildConfig({
     {
       slug: 'posts',
       labels: {
-        singular: 'Discount Post',
-        plural: 'Discount Posts',
+        singular: 'Post',
+        plural: 'Posts',
       },
       access: {
         read: () => true,
       },
+      hooks: {
+        afterChange: [triggerRevalidate('posts')],
+      },
       admin: {
         useAsTitle: 'title',
-        description: 'Create and manage discount articles that can be displayed as storefront cards.',
+        description: 'Create and manage articles, promotion posts, and storefront cards.',
       },
       fields: [
         {
@@ -140,6 +143,36 @@ export default buildConfig({
           name: 'author',
           type: 'relationship',
           relationTo: 'users',
+        },
+        {
+          name: 'discountLabel',
+          label: 'Discount Label',
+          type: 'text',
+          localized: true,
+          admin: {
+            description: 'Short label shown on the card badge, e.g. "30% OFF" or "Giảm 30%"',
+          },
+        },
+        {
+          name: 'discountPercent',
+          label: 'Discount Percent',
+          type: 'number',
+          min: 0,
+          max: 100,
+          admin: {
+            description: 'Numeric discount percentage (0-100). Used to render the badge color.',
+          },
+        },
+        {
+          name: 'expiresAt',
+          label: 'Offer Expires At',
+          type: 'date',
+          admin: {
+            description: 'Optional expiry date for this promotion. Shown as a countdown on the card.',
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+          },
         },
         {
           name: 'content',
@@ -296,8 +329,8 @@ export default buildConfig({
             {
               slug: 'blogPosts',
               labels: {
-                singular: 'Discount Cards',
-                plural: 'Discount Cards',
+                singular: 'Post Cards',
+                plural: 'Post Cards',
               },
               fields: [
                 {
@@ -312,7 +345,7 @@ export default buildConfig({
                   label: 'Number of posts',
                   type: 'number',
                   admin: {
-                    description: 'Leave empty to show all discount posts.',
+                    description: 'Leave empty to show all posts.',
                   },
                 },
               ],

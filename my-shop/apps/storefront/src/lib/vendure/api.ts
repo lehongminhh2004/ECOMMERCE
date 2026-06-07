@@ -132,7 +132,13 @@ export async function query<TResult, TVariables>(
             ...(newToken && {token: newToken}),
         };
     } catch (error) {
-        console.error('Vendure API query failed:', error);
+        const isExpectedPrerenderAbort =
+            error instanceof DOMException && error.name === 'AbortError'
+            || error instanceof Error && 'digest' in error && error.digest === 'HANGING_PROMISE_REJECTION';
+
+        if (!isExpectedPrerenderAbort) {
+            console.error('Vendure API query failed:', error);
+        }
         return {
             data: {} as TResult
         };

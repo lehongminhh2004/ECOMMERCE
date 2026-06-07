@@ -197,7 +197,7 @@ export interface Category {
   createdAt: string;
 }
 /**
- * Create and manage discount articles that can be displayed as storefront cards.
+ * Create and manage articles, promotion posts, and storefront cards.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
@@ -209,6 +209,18 @@ export interface Post {
   coverImage?: (number | null) | Media;
   category?: (number | null) | Category;
   author?: (number | null) | User;
+  /**
+   * Short label shown on the card badge, e.g. "30% OFF" or "Giảm 30%"
+   */
+  discountLabel?: string | null;
+  /**
+   * Numeric discount percentage (0-100). Used to render the badge color.
+   */
+  discountPercent?: number | null;
+  /**
+   * Optional expiry date for this promotion. Shown as a countdown on the card.
+   */
+  expiresAt?: string | null;
   content?: {
     root: {
       type: string;
@@ -291,7 +303,7 @@ export interface Page {
         | {
             title: string;
             /**
-             * Leave empty to show all discount posts.
+             * Leave empty to show all posts.
              */
             limit?: number | null;
             id?: string | null;
@@ -449,6 +461,9 @@ export interface PostsSelect<T extends boolean = true> {
   coverImage?: T;
   category?: T;
   author?: T;
+  discountLabel?: T;
+  discountPercent?: T;
+  expiresAt?: T;
   content?: T;
   updatedAt?: T;
   createdAt?: T;

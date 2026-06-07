@@ -19,30 +19,16 @@ import {
     NavigationMenuItem,
 } from '@/components/ui/navigation-menu';
 
-const cmsLinkTranslations: Record<string, string> = {
-    'Shop': 'Cửa hàng',
-    'Deals': 'Ưu đãi',
-    'Summer Sale': 'Khuyến mãi hè',
-    'Terms of Service': 'Điều khoản dịch vụ',
-    'Privacy Policy': 'Chính sách bảo mật',
-    'About Us': 'Giới thiệu',
-    'Contact': 'Liên hệ',
-};
-
+// Fallback navigation nếu CMS không có dữ liệu
 const fallbackNavigationLinks = [
     { label: 'Shop', url: '/search' },
 ];
 
-function getCmsLinkLabel(label: string, locale: string) {
-    if (locale === 'vi') {
-        return cmsLinkTranslations[label] || label;
-    }
-    return label;
-}
-
 export async function Navbar({ locale }: { locale: string }) {
     const navigation = await getNavigation();
     const topAnnouncement = navigation?.topAnnouncement;
+    // Labels từ CMS đã được localized sẵn theo locale truyền vào getNavigation()
+    // Không cần hardcode translation mapping nữa
     const navigationLinks = navigation?.links?.length ? navigation.links : fallbackNavigationLinks;
 
     return (
@@ -71,7 +57,7 @@ export async function Navbar({ locale }: { locale: string }) {
                                         {navigationLinks.map((link, idx) => (
                                             <NavigationMenuItem key={idx}>
                                                 <NavbarLink href={link.url}>
-                                                    {getCmsLinkLabel(link.label, locale)}
+                                                    {link.label}
                                                 </NavbarLink>
                                             </NavigationMenuItem>
                                         ))}
