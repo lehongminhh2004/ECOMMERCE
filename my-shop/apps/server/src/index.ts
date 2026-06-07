@@ -10,7 +10,14 @@ async function start() {
     await bootstrap(config);
 
     if (process.env.RUN_WORKER_IN_PROCESS === 'true') {
-        const worker = await bootstrapWorker(config);
+        const workerConfig = {
+            ...config,
+            plugins: (config.plugins || []).filter(p => {
+                const name = typeof p === 'function' ? p.name : (p as any)?.constructor?.name;
+                return name !== 'DefaultSchedulerPlugin' && name !== 'SchedulerPlugin';
+            }),
+        };
+        const worker = await bootstrapWorker(workerConfig);
         await worker.startJobQueue();
     }
 }
