@@ -243,7 +243,7 @@ async function getFooterCached(locale: string): Promise<FooterData | null> {
 // Fetch and transform products for FeaturedProductsBlock from Vendure:
 export async function getVendureProductsForSlugs(slugs: string[]): Promise<any[]> {
   const locale = await getRouteLocale()
-  const currencyCode = await getActiveCurrencyCode()
+  const currencyCode = await getActiveCurrencyCode(locale)
   return getVendureProductsForSlugsCached(slugs, locale, currencyCode)
 }
 
@@ -286,7 +286,7 @@ async function getVendureProductsForSlugsCached(slugs: string[], locale: string,
 
 export async function getVendureProductById(id: string): Promise<any | null> {
   const locale = await getRouteLocale()
-  const currencyCode = await getActiveCurrencyCode()
+  const currencyCode = await getActiveCurrencyCode(locale)
   return getVendureProductByIdCached(id, locale, currencyCode)
 }
 

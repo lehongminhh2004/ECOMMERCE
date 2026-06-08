@@ -31,7 +31,7 @@ async function getFeaturedCollectionProducts(currencyCode: string) {
 
 export async function FeaturedProducts() {
     const locale = await getRouteLocale();
-    const currencyCode = await getActiveCurrencyCode();
+    const currencyCode = await getActiveCurrencyCode(locale);
     const t = await getTranslations({locale, namespace: 'Product'});
     const products = await getFeaturedCollectionProducts(currencyCode);
     const priceOverrides = await getProductCardPriceOverrides(products, currencyCode);

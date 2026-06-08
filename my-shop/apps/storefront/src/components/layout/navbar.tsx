@@ -81,7 +81,7 @@ export async function Navbar({ locale }: { locale: string }) {
                             <LanguagePicker />
                         </Suspense>
                         <Suspense>
-                            <CurrencyPickerWrapper />
+                            <CurrencyPickerWrapper locale={locale} />
                         </Suspense>
                         <Suspense>
                             <ThemeSwitcher />

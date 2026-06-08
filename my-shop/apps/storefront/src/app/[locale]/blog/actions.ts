@@ -20,8 +20,8 @@ export async function applyCouponAndGoToCart(couponCode: string) {
     }
 
     const normalizedCode = couponCode.trim().toUpperCase();
-    const currencyCode = await getActiveCurrencyCode();
     const locale = await getLocale();
+    const currencyCode = await getActiveCurrencyCode(locale);
     let result: ApplyResult = 'success';
 
     try {

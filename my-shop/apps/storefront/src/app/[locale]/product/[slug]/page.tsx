@@ -51,7 +51,7 @@ export async function generateMetadata({
 }: PageProps<'/[locale]/product/[slug]'>): Promise<Metadata> {
     const { slug } = await params;
     const locale = await getRouteLocale();
-    const currencyCode = await getActiveCurrencyCode();
+    const currencyCode = await getActiveCurrencyCode(locale);
     const result = await getProductData(slug, locale, currencyCode);
     const product = result.data?.product;
 
@@ -99,7 +99,7 @@ export default async function ProductDetailPage({params, searchParams}: PageProp
     const { slug } = await params;
     const searchParamsResolved = await searchParams;
     const locale = await getRouteLocale();
-    const currencyCode = await getActiveCurrencyCode();
+    const currencyCode = await getActiveCurrencyCode(locale);
     const t = await getTranslations({locale, namespace: 'Product'});
 
     const result = await getProductData(slug, locale, currencyCode);

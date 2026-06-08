@@ -22,7 +22,7 @@ interface ProductGridProps {
 export async function ProductGrid({productDataPromise, currentPage, take}: ProductGridProps) {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'Product'});
-    const currencyCode = await getActiveCurrencyCode();
+    const currencyCode = await getActiveCurrencyCode(locale);
     const result = await productDataPromise;
 
     const searchResult = result.data?.search;

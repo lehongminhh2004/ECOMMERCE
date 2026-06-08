@@ -43,7 +43,7 @@ async function getRelatedProducts(collectionSlug: string, currentProductId: stri
 
 export async function RelatedProducts({ collectionSlug, currentProductId }: RelatedProductsProps) {
     const locale = await getRouteLocale();
-    const currencyCode = await getActiveCurrencyCode();
+    const currencyCode = await getActiveCurrencyCode(locale);
     const t = await getTranslations({locale, namespace: 'Product'});
     const products = await getRelatedProducts(collectionSlug, currentProductId, currencyCode);
     const priceOverrides = await getProductCardPriceOverrides(products, currencyCode);

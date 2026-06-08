@@ -17,7 +17,7 @@ interface SearchResultsProps {
 export async function SearchResults({searchParams}: SearchResultsProps) {
     const searchParamsResolved = await searchParams;
     const locale = await getRouteLocale();
-    const currencyCode = await getActiveCurrencyCode();
+    const currencyCode = await getActiveCurrencyCode(locale);
     const page = getCurrentPage(searchParamsResolved);
 
     const productDataPromise = query(SearchProductsQuery, {

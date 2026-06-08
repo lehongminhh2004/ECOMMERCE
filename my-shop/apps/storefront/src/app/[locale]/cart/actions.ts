@@ -12,15 +12,15 @@ import {updateTag} from 'next/cache';
 import {getLocale} from 'next-intl/server';
 
 export async function removeFromCart(lineId: string) {
-    const currencyCode = await getActiveCurrencyCode();
     const locale = await getLocale();
+    const currencyCode = await getActiveCurrencyCode(locale);
     await mutate(RemoveFromCartMutation, {lineId}, {useAuthToken: true, languageCode: locale, currencyCode});
     updateTag('cart');
 }
 
 export async function adjustQuantity(lineId: string, quantity: number) {
-    const currencyCode = await getActiveCurrencyCode();
     const locale = await getLocale();
+    const currencyCode = await getActiveCurrencyCode(locale);
     await mutate(AdjustCartItemMutation, {lineId, quantity}, {useAuthToken: true, languageCode: locale, currencyCode});
     updateTag('cart');
 }
@@ -29,8 +29,8 @@ export async function applyPromotionCode(formData: FormData) {
     const code = formData.get('code') as string;
     if (!code) return;
 
-    const currencyCode = await getActiveCurrencyCode();
     const locale = await getLocale();
+    const currencyCode = await getActiveCurrencyCode(locale);
     const {data} = await mutate(ApplyPromotionCodeMutation, {couponCode: code.trim().toUpperCase()}, {useAuthToken: true, languageCode: locale, currencyCode});
     const result = (data as any)?.applyCouponCode;
     if (!result || result.__typename !== 'Order') {
@@ -43,8 +43,8 @@ export async function removePromotionCode(formData: FormData) {
     const code = formData.get('code') as string;
     if (!code) return;
 
-    const currencyCode = await getActiveCurrencyCode();
     const locale = await getLocale();
+    const currencyCode = await getActiveCurrencyCode(locale);
     await mutate(RemovePromotionCodeMutation, {couponCode: code}, {useAuthToken: true, languageCode: locale, currencyCode});
     updateTag('cart');
 }

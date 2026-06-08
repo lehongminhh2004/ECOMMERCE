@@ -15,18 +15,20 @@ import {getLocale} from 'next-intl/server';
  * Safe inside 'use cache: private' (cookies are part of the per-user cache key).
  * NOT safe inside public 'use cache' — pass currency as a parameter instead.
  */
-export async function getActiveCurrencyCode(): Promise<string> {
+export async function getActiveCurrencyCode(localeOverride?: string): Promise<string> {
     const channel = await getActiveChannelCached();
     const available = Array.isArray(channel.availableCurrencyCodes)
         ? (channel.availableCurrencyCodes as string[])
         : [];
 
-    let locale: string;
-    try {
-        locale = await getRouteLocale();
-    } catch {
-        // Fallback for Server Actions where route params context is not available
-        locale = await getLocale();
+    let locale = localeOverride;
+    if (!locale) {
+        try {
+            locale = await getRouteLocale();
+        } catch {
+            // Fallback for Server Actions where route params context is not available
+            locale = await getLocale();
+        }
     }
 
     // 1. Prefer locale-mapped currency if the channel supports it

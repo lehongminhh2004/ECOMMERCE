@@ -13,7 +13,7 @@ export async function Cart() {
     cacheTag('cart');
 
     const locale = await getRouteLocale();
-    const currencyCode = await getActiveCurrencyCode();
+    const currencyCode = await getActiveCurrencyCode(locale);
     const {data} = await query(GetActiveOrderQuery, {}, {
         useAuthToken: true,
         languageCode: locale,

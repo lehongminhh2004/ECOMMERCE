@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CheckoutPage() {
     const locale = await getRouteLocale();
-    const currencyCode = await getActiveCurrencyCode();
+    const currencyCode = await getActiveCurrencyCode(locale);
     const t = await getTranslations({locale, namespace: 'Checkout'});
     const customer = await getActiveCustomer();
     const isGuest = !customer;

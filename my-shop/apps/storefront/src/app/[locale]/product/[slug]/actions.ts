@@ -9,11 +9,11 @@ import { getLocale, getTranslations } from 'next-intl/server';
 
 export async function addToCart(variantId: string, quantity: number = 1) {
   const locale = await getLocale();
-  const currencyCode = await getActiveCurrencyCode();
+  const currencyCode = await getActiveCurrencyCode(locale);
   const t = await getTranslations({locale, namespace: 'Errors'});
 
   try {
-    const result = await mutate(AddToCartMutation, { variantId, quantity }, { useAuthToken: true, currencyCode });
+    const result = await mutate(AddToCartMutation, { variantId, quantity }, { useAuthToken: true, languageCode: locale, currencyCode });
 
     if (result.token) {
       await setAuthToken(result.token);

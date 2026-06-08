@@ -67,12 +67,17 @@ async function main() {
         throw new Error('No Vendure channel found');
     }
 
+    const languages = new Set(channel.availableLanguageCodes);
+    languages.add(LanguageCode.en);
+    languages.add(LanguageCode.vi);
+
     const currencies = new Set(channel.availableCurrencyCodes);
     currencies.add(CurrencyCode.VND);
     currencies.add(CurrencyCode.USD);
 
     const updatedChannel = await channelService.update(ctx, {
         id: channel.id,
+        availableLanguageCodes: Array.from(languages),
         availableCurrencyCodes: Array.from(currencies),
     });
 
@@ -111,7 +116,7 @@ async function main() {
 
     await worker.app.close();
 
-    console.log(`USD enabled for channel ${channel.id}. Created ${created} USD prices.`);
+    console.log(`USD/VND and en/vi enabled for channel ${channel.id}. Created ${created} USD prices.`);
 }
 
 main().catch(async error => {
