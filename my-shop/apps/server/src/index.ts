@@ -31,8 +31,10 @@ async function start() {
     await bootstrap(serverConfig);
 
     if (runWorkerInProcess) {
-        console.warn('RUN_WORKER_IN_PROCESS=true is not recommended on Render free tier. Start only one Vendure process if scheduler cron names collide.');
-        const worker = await bootstrapWorker(config);
+        // Worker also runs without the SchedulerPlugin to prevent duplicate
+        // cron job registration in the same Node process.
+        const workerConfig = omitSchedulerPlugin(config);
+        const worker = await bootstrapWorker(workerConfig);
         await worker.startJobQueue();
     }
 }
