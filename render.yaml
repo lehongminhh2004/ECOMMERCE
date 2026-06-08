@@ -19,10 +19,17 @@ services:
         value: "false"
       - key: VENDURE_DB_POOL_MAX
         value: "6"
+      # Run worker in same process to avoid dual-scheduler cron conflicts on
+      # the free tier (only one instance allowed).
       - key: RUN_WORKER_IN_PROCESS
-        value: "false"
+        value: "true"
+      # Set ASSET_STORAGE=cloudinary once you have Cloudinary credentials below.
+      # Leave unset (or set to "local") to fall back to local disk storage.
+      - key: ASSET_STORAGE
+        value: cloudinary
       - key: ASSET_URL_PREFIX
         value: https://my-shop-vendure.onrender.com/assets
+      # ── Secrets — set these manually in Render dashboard ──────────────────
       - key: DATABASE_URL
         sync: false
       - key: COOKIE_SECRET
@@ -31,6 +38,15 @@ services:
         sync: false
       - key: SUPERADMIN_PASSWORD
         sync: false
+      # ── Cloudinary ─────────────────────────────────────────────────────────
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_FOLDER
+        value: vendure-assets
 
   - type: web
     name: my-shop-payload-cms
@@ -44,10 +60,13 @@ services:
         value: production
       - key: DB_SSL
         value: "true"
+      # DB_PUSH=false in production — migrations are run explicitly via
+      # Payload's migration runner on deploy, not auto-pushed.
       - key: DB_PUSH
-        value: "true"
+        value: "false"
       - key: PAYLOAD_DB_POOL_MAX
         value: "4"
+      # ── Secrets — set these manually in Render dashboard ──────────────────
       - key: DATABASE_URI
         sync: false
       - key: PAYLOAD_SECRET
@@ -56,3 +75,12 @@ services:
         sync: false
       - key: REVALIDATION_SECRET
         sync: false
+      # ── Cloudinary ─────────────────────────────────────────────────────────
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_FOLDER
+        value: payload-cms

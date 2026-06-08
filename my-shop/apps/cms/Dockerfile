@@ -39,7 +39,14 @@ COPY --from=builder /app/apps/cms/public ./apps/cms/public
 COPY --from=builder /app/apps/cms/.next/static ./apps/cms/.next/static
 # Copy media
 COPY --from=builder /app/apps/cms/media ./apps/cms/media
+# Copy node_modules for payload CLI (needed by migration entrypoint)
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/cms/node_modules ./apps/cms/node_modules
+
+# Copy and set up entrypoint (runs migrations then starts CMS)
+COPY --from=builder /app/apps/cms/docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 
 EXPOSE 3002
 
-CMD ["node", "apps/cms/server.js"]
+ENTRYPOINT ["./docker-entrypoint.sh"]

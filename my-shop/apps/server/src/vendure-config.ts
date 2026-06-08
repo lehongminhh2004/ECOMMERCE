@@ -9,6 +9,7 @@ import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@ven
 import { AssetServerPlugin } from '@vendure/asset-server-plugin';
 import { DashboardPlugin } from '@vendure/dashboard/plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
+import { CloudinaryAssetStorageStrategy } from './plugins/cloudinary-asset-storage';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -18,6 +19,7 @@ const IS_DEV = process.env.APP_ENV === 'dev';
 const serverPort = +process.env.PORT || 3000;
 const dbSslEnabled = process.env.DB_SSL === 'true';
 const dbPoolMax = +(process.env.VENDURE_DB_POOL_MAX || 6);
+const useCloudinary = process.env.ASSET_STORAGE === 'cloudinary';
 const healthCheckMiddleware = (_req: any, res: any) => {
     res.status(200).json({ status: 'ok' });
 };
@@ -90,6 +92,7 @@ export const config: VendureConfig = {
             // be guessed correctly, but for production it will usually need
             // to be set manually to match your production url.
             assetUrlPrefix: process.env.ASSET_URL_PREFIX || undefined,
+            ...(useCloudinary ? { storageStrategyFactory: () => new CloudinaryAssetStorageStrategy() } : {}),
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),

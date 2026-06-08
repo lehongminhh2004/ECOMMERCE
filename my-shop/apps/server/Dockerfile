@@ -38,8 +38,11 @@ COPY --from=builder /app/apps/server/dist ./apps/server/dist
 COPY --from=builder /app/apps/server/static ./apps/server/static
 COPY --from=builder /app/apps/server/dist/dashboard ./apps/server/dist/dashboard
 
+# Copy and set up entrypoint (runs migrations then starts server)
+COPY --from=builder /app/apps/server/docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
 # Expose backend port
 EXPOSE 3000
 
-# CMD is overridden in docker-compose.yml for worker vs server
-CMD ["node", "apps/server/dist/index.js"]
+ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -1,7 +1,6 @@
 'use client';
 
 import {useState, useEffect, useTransition} from 'react';
-import {useSearchParams} from 'next/navigation';
 import {useRouter} from '@/i18n/navigation';
 import {Search} from 'lucide-react';
 import {Input} from '@/components/ui/input';
@@ -10,13 +9,12 @@ import {useTranslations} from 'next-intl';
 export function SearchInput() {
     const t = useTranslations('Navigation');
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
-    const [searchValue, setSearchValue] = useState(searchParams.get('q') || '');
+    const [searchValue, setSearchValue] = useState('');
 
     useEffect(() => {
-        setSearchValue(searchParams.get('q') || '');
-    }, [searchParams]);
+        setSearchValue(new URLSearchParams(window.location.search).get('q') || '');
+    }, []);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

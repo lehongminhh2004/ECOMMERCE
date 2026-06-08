@@ -1,6 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { vi } from '@payloadcms/translations/languages/vi'
+import { cloudinaryStorage } from 'payloadcms-storage-cloudinary'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -11,26 +12,40 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const dbSslEnabled = process.env.DB_SSL === 'true'
 const dbPoolMax = Number(process.env.PAYLOAD_DB_POOL_MAX || 4)
+const useCloudinary =
+  Boolean(process.env.CLOUDINARY_CLOUD_NAME) &&
+  Boolean(process.env.CLOUDINARY_API_KEY) &&
+  Boolean(process.env.CLOUDINARY_API_SECRET)
+
+async function revalidateStorefront(tags: string[]) {
+  const revalidateUrl = process.env.STOREFRONT_REVALIDATE_URL
+  const secret = process.env.REVALIDATION_SECRET
+
+  if (!revalidateUrl || !secret) {
+    console.warn('Skipping storefront cache revalidation because STOREFRONT_REVALIDATE_URL or REVALIDATION_SECRET is not set.')
+    return
+  }
+
+  const res = await fetch(revalidateUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${secret}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ tags }),
+  })
+
+  if (!res.ok) {
+    throw new Error(`${res.status} ${res.statusText}`)
+  }
+}
 
 const triggerRevalidate = (tag: string) => async () => {
   try {
-    const revalidateUrl = process.env.STOREFRONT_REVALIDATE_URL || 'http://storefront:3001/api/revalidate';
-    const secret = process.env.REVALIDATION_SECRET || 'e1EX6Yeu0fjJ6X2qweSav50VjOxkNPFlMEeXEGvj7Dg=';
-    const res = await fetch(revalidateUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${secret}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ tags: [tag] }),
-    });
-    if (res.ok) {
-      console.log(`Successfully triggered ${tag} cache revalidation`);
-    } else {
-      console.error(`Failed to trigger ${tag} cache revalidation: ${res.statusText}`);
-    }
+    await revalidateStorefront([tag])
+    console.log(`Successfully triggered ${tag} cache revalidation`)
   } catch (err) {
-    console.error(`Failed to trigger ${tag} cache revalidation:`, err);
+    console.error(`Failed to trigger ${tag} cache revalidation:`, err)
   }
 }
 
@@ -53,6 +68,26 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
+  // Conditionally enable Cloudinary storage when credentials are present.
+  // Falls back to local disk (default Payload behaviour) in dev without any
+  // extra config needed.
+  plugins: [
+    ...(useCloudinary
+      ? [
+          cloudinaryStorage({
+            collections: {
+              media: true,
+            },
+            cloudinaryConfig: {
+              cloud_name: process.env.CLOUDINARY_CLOUD_NAME as string,
+              api_key: process.env.CLOUDINARY_API_KEY as string,
+              api_secret: process.env.CLOUDINARY_API_SECRET as string,
+            },
+            folder: process.env.CLOUDINARY_FOLDER || 'payload-cms',
+          }),
+        ]
+      : []),
+  ],
   blocks: [
     VendureProductBlock
   ],
@@ -231,19 +266,10 @@ export default buildConfig({
         afterChange: [
           async ({ doc }) => {
             try {
-              const revalidateUrl = process.env.STOREFRONT_REVALIDATE_URL || 'http://storefront:3001/api/revalidate';
-              const secret = process.env.REVALIDATION_SECRET || 'e1EX6Yeu0fjJ6X2qweSav50VjOxkNPFlMEeXEGvj7Dg=';
-              await fetch(revalidateUrl, {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${secret}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ tags: ['pages', `page-${doc.slug}`] }),
-              });
-              console.log(`Successfully triggered page-${doc.slug} cache revalidation`);
+              await revalidateStorefront(['pages', `page-${doc.slug}`])
+              console.log(`Successfully triggered page-${doc.slug} cache revalidation`)
             } catch (err) {
-              console.error(`Failed to trigger page-${doc.slug} cache revalidation:`, err);
+              console.error(`Failed to trigger page-${doc.slug} cache revalidation:`, err)
             }
           }
         ]
