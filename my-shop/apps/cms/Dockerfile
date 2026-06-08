@@ -42,6 +42,10 @@ COPY --from=builder /app/apps/cms/media ./apps/cms/media
 # Copy node_modules for payload CLI (needed by migration entrypoint)
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/cms/node_modules ./apps/cms/node_modules
+# Copy source files needed by the migration runner (tsx + migrate.ts)
+COPY --from=builder /app/apps/cms/src ./apps/cms/src
+COPY --from=builder /app/apps/cms/payload.config.ts ./apps/cms/payload.config.ts
+COPY --from=builder /app/apps/cms/tsconfig.json ./apps/cms/tsconfig.json
 
 # Copy and set up entrypoint (runs migrations then starts CMS)
 COPY --from=builder /app/apps/cms/docker-entrypoint.sh ./docker-entrypoint.sh
