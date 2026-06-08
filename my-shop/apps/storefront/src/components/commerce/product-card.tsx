@@ -6,7 +6,7 @@ import {Suspense} from "react";
 import { Link } from '@/i18n/navigation';
 import {useTranslations} from 'next-intl';
 import type {ProductCardPrice} from '@/lib/vendure/product-card-price-overrides';
-import {getVendureAssetUrl} from '@/lib/utils';
+import {getVendureAssetUrl, shouldUseUnoptimized} from '@/lib/utils';
 
 interface ProductCardProps {
     product: FragmentOf<typeof ProductCardFragment>;
@@ -26,13 +26,19 @@ export function ProductCard({product: productProp, priceOverride}: ProductCardPr
         >
             <div className="aspect-square relative bg-muted overflow-hidden">
                 {product.productAsset ? (
-                    <Image
-                        src={getVendureAssetUrl(product.productAsset.preview)}
-                        alt={product.productName}
-                        fill
-                        className="object-cover group-hover:scale-105 group-hover:opacity-90 transition-all duration-500"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
+                    (() => {
+                        const src = getVendureAssetUrl(product.productAsset.preview);
+                        return (
+                            <Image
+                                src={src}
+                                alt={product.productName}
+                                fill
+                                unoptimized={shouldUseUnoptimized(src)}
+                                className="object-cover group-hover:scale-105 group-hover:opacity-90 transition-all duration-500"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            />
+                        );
+                    })()
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                         {t('noImage')}

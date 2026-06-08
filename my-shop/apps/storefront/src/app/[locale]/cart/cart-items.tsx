@@ -5,7 +5,7 @@ import {Minus, Plus, X} from 'lucide-react';
 import {Price} from '@/components/commerce/price';
 import {removeFromCart, adjustQuantity} from './actions';
 import {getTranslations} from 'next-intl/server';
-import { getVendureAssetUrl } from '@/lib/utils';
+import { getVendureAssetUrl, shouldUseUnoptimized } from '@/lib/utils';
 
 type ActiveOrder = {
     id: string;
@@ -63,6 +63,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                                 alt={line.productVariant.name}
                                 width={120}
                                 height={120}
+                                unoptimized={shouldUseUnoptimized(getVendureAssetUrl(line.productVariant.product.featuredAsset.preview))}
                                 className="rounded-xl object-cover w-full sm:w-[120px] h-[120px]"
                             />
                         </Link>

@@ -10,7 +10,7 @@ import {getRouteLocale} from '@/i18n/server';
 import {getTranslations} from 'next-intl/server';
 import {query} from '@/lib/vendure/api';
 import {graphql} from '@/graphql';
-import { getVendureAssetUrl } from '@/lib/utils';
+import { getVendureAssetUrl, shouldUseUnoptimized } from '@/lib/utils';
 
 const GetOrderByCodeQuery = graphql(`
     query GetOrderByCode($code: String!) {
@@ -100,6 +100,7 @@ export async function OrderConfirmation({paramsPromise}: OrderConfirmationProps)
                                             alt={line.productVariant.name}
                                             width={80}
                                             height={80}
+                                            unoptimized={shouldUseUnoptimized(getVendureAssetUrl(line.productVariant.product.featuredAsset.preview))}
                                             className="rounded-lg object-cover h-20 w-20 object-center"
                                         />
                                     </div>

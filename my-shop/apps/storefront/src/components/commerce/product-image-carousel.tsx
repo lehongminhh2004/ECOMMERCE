@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getVendureAssetUrl } from '@/lib/utils';
+import { getVendureAssetUrl, shouldUseUnoptimized } from '@/lib/utils';
 
 interface ProductImageCarouselProps {
     images: Array<{
@@ -41,6 +41,7 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
                     src={getVendureAssetUrl(images[currentIndex].source)}
                     alt={`Product image ${currentIndex + 1}`}
                     fill
+                    unoptimized={shouldUseUnoptimized(getVendureAssetUrl(images[currentIndex].source))}
                     className="object-cover hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     priority={currentIndex === 0}
@@ -93,6 +94,7 @@ export function ProductImageCarousel({ images }: ProductImageCarouselProps) {
                                 src={getVendureAssetUrl(image.preview)}
                                 alt={`Thumbnail ${index + 1}`}
                                 fill
+                                unoptimized={shouldUseUnoptimized(getVendureAssetUrl(image.preview))}
                                 className="object-cover"
                                 sizes="25vw"
                             />

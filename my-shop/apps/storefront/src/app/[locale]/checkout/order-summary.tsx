@@ -10,7 +10,7 @@ import { OrderLine } from './types';
 import { useCheckout } from './checkout-provider';
 import { Price } from '@/components/commerce/price';
 import {useTranslations} from 'next-intl';
-import { getVendureAssetUrl } from '@/lib/utils';
+import { getVendureAssetUrl, shouldUseUnoptimized } from '@/lib/utils';
 
 function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckout>['order']; t: ReturnType<typeof useTranslations<'Checkout'>> }) {
   const totalSavings = order.discounts
@@ -29,6 +29,7 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
                   alt={line.productVariant.name}
                   width={56}
                   height={56}
+                  unoptimized={shouldUseUnoptimized(getVendureAssetUrl(line.productVariant.product.featuredAsset.preview))}
                   className="object-cover w-full h-full"
                 />
               </div>
