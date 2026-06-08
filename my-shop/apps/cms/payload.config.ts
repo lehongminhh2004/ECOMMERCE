@@ -423,7 +423,6 @@ export default buildConfig({
         {
           name: 'topAnnouncement',
           type: 'text',
-          localized: true,
         },
         {
           name: 'links',
@@ -433,7 +432,6 @@ export default buildConfig({
               name: 'label',
               type: 'text',
               required: true,
-              localized: true,
             },
             {
               name: 'url',
@@ -456,7 +454,6 @@ export default buildConfig({
         {
           name: 'contactInfo',
           type: 'textarea',
-          localized: true,
         },
         {
           name: 'links',
@@ -466,7 +463,6 @@ export default buildConfig({
               name: 'label',
               type: 'text',
               required: true,
-              localized: true,
             },
             {
               name: 'url',
