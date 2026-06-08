@@ -14,6 +14,8 @@
  */
 
 import { AssetStorageStrategy, Logger } from '@vendure/core';
+import fs from 'fs/promises';
+import path from 'path';
 import { Stream } from 'stream';
 import { Readable } from 'stream';
 
@@ -39,6 +41,10 @@ function buildPublicId(filename: string, folder: string): string {
     // Strip extension — Cloudinary stores it separately
     const withoutExt = filename.replace(/\.[^/.]+$/, '');
     return folder ? `${folder}/${withoutExt}` : withoutExt;
+}
+
+function isRemoteIdentifier(identifier: string): boolean {
+    return identifier.startsWith('http://') || identifier.startsWith('https://');
 }
 
 export class CloudinaryAssetStorageStrategy implements AssetStorageStrategy {
@@ -98,6 +104,12 @@ export class CloudinaryAssetStorageStrategy implements AssetStorageStrategy {
 
     async readFileToBuffer(identifier: string): Promise<Buffer> {
         // identifier is already a full Cloudinary URL — fetch it
+        if (!isRemoteIdentifier(identifier)) {
+            const normalized = identifier.replace(/\\/g, '/').replace(/^\/+/, '');
+            const localPath = path.join(__dirname, '../../static/assets', normalized);
+            return fs.readFile(localPath);
+        }
+
         const response = await fetch(identifier);
         if (!response.ok) {
             throw new Error(`Failed to fetch asset from Cloudinary: ${response.statusText}`);
