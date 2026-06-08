@@ -25,7 +25,12 @@ const fallbackNavigationLinks = [
 ];
 
 export async function Navbar({ locale }: { locale: string }) {
-    const navigation = await getNavigation();
+    let navigation = null;
+    try {
+        navigation = await getNavigation();
+    } catch {
+        // Payload CMS unreachable — use fallback navigation silently
+    }
     const topAnnouncement = navigation?.topAnnouncement;
     // Labels từ CMS đã được localized sẵn theo locale truyền vào getNavigation()
     // Không cần hardcode translation mapping nữa

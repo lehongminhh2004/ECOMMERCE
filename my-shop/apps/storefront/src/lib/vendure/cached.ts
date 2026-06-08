@@ -14,9 +14,9 @@ export async function getActiveChannelCached() {
     const result = await query(GetActiveChannelQuery);
     return result.data?.activeChannel || {
         code: 'default',
-        defaultLanguageCode: 'vi',
-        defaultCurrencyCode: 'VND',
-        availableCurrencyCodes: ['VND'],
+        defaultLanguageCode: 'en',
+        defaultCurrencyCode: 'USD',
+        availableCurrencyCodes: ['USD'],
         pricesIncludeTax: true
     };
 }

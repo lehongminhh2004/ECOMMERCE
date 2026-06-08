@@ -11,9 +11,15 @@ export async function MobileNavWrapper() {
     const locale = await getRouteLocale();
     cacheTag(`mobile-nav-${locale}`);
 
-    const [collections, navigation] = await Promise.all([
+    let navigation = null;
+    try {
+        navigation = await getNavigation();
+    } catch {
+        // Payload CMS unreachable — use empty CMS links
+    }
+
+    const [collections] = await Promise.all([
         getTopCollections(locale),
-        getNavigation(),
     ]);
 
     const cmsLinks = navigation?.links || [];

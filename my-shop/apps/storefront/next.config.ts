@@ -51,6 +51,11 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'res.cloudinary.com'
             },
+            // Render.com deployed services — covers all *.onrender.com subdomains
+            {
+                protocol: 'https',
+                hostname: '**.onrender.com',
+            },
             ...remoteImagePatterns,
         ],
     },

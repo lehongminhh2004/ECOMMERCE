@@ -88,7 +88,12 @@ export async function Footer({ locale }: { locale: string }) {
 
     const t = await getTranslations({ locale, namespace: 'Footer' });
     const collections = await getTopCollections(locale);
-    const cmsFooter = await getFooter();
+    let cmsFooter = null;
+    try {
+        cmsFooter = await getFooter();
+    } catch {
+        // Payload CMS unreachable — render fallback footer
+    }
 
     return (
         <footer className="border-t border-border mt-auto">
