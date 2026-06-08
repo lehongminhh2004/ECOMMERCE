@@ -10,6 +10,7 @@ import { Calendar, ArrowLeft } from 'lucide-react'
 import { Container } from '@/components/layout/container'
 import { PageSection } from '@/components/layout/page-section'
 import { SITE_NAME } from '@/lib/metadata'
+import { CouponBanner } from '@/components/commerce/coupon-banner'
 
 interface PostPageProps {
   params: Promise<{ slug: string; locale: string }>
@@ -107,6 +108,17 @@ async function BlogPostContent({ slug }: { slug: string }) {
               </div>
             </div>
           </div>
+
+          {/* 🎟️ Coupon Banner — hiển thị ngay nếu bài có mã giảm giá Vendure */}
+          {post.couponCode && (
+            <CouponBanner
+              couponCode={post.couponCode}
+              discountLabel={post.discountLabel}
+              discountPercent={post.discountPercent}
+              expiresAt={post.expiresAt}
+              postTitle={post.title}
+            />
+          )}
 
           {coverUrl && (
             <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl mb-10 bg-neutral-100 dark:bg-neutral-950 shadow-md">

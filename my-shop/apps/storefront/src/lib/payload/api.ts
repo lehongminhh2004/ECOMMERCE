@@ -9,7 +9,7 @@ import { cacheLife, cacheTag } from 'next/cache'
 const PAYLOAD_API_URL = process.env.PAYLOAD_API_URL || process.env.NEXT_PUBLIC_PAYLOAD_API_URL || 'http://localhost:3002/api'
 const PAYLOAD_PUBLIC_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL || PAYLOAD_API_URL.replace(/\/api\/?$/, '')
 const PAYLOAD_FALLBACK_LOCALE = 'en'
-const PAYLOAD_FETCH_TIMEOUT_MS = +(process.env.PAYLOAD_FETCH_TIMEOUT_MS || 8000)
+const PAYLOAD_FETCH_TIMEOUT_MS = +(process.env.PAYLOAD_FETCH_TIMEOUT_MS || 15000)
 
 export interface Media {
   id: string
@@ -75,6 +75,8 @@ export interface PostData {
   discountPercent?: number | null
   /** ISO date string of offer expiry; shown as countdown on card */
   expiresAt?: string | null
+  /** Vendure coupon code linked to this promotion post. Admin enters this from Vendure Promotions. */
+  couponCode?: string | null
   content?: any
   createdAt: string
 }

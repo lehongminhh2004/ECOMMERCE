@@ -25,6 +25,7 @@ function ExpiryBadge({ expiresAt }: { expiresAt: string }) {
 export function DiscountCard({ post, compact = false }: DiscountCardProps) {
   const coverUrl = getPayloadMediaUrl(post.coverImage?.url ?? null)
   const hasDiscount = post.discountPercent != null && post.discountPercent > 0
+  const hasCoupon = !!post.couponCode
 
   // Choose badge colour based on discount magnitude
   const badgeColor =
@@ -89,6 +90,16 @@ export function DiscountCard({ post, compact = false }: DiscountCardProps) {
         >
           {post.title}
         </h3>
+
+        {/* Coupon code preview — chỉ hiển thị nếu có mã */}
+        {hasCoupon && (
+          <div className="flex items-center gap-1.5 mt-1">
+            <Tag className="size-3 text-primary flex-shrink-0" />
+            <span className="font-mono font-bold text-[11px] text-primary tracking-wider bg-primary/10 px-2 py-0.5 rounded">
+              {post.couponCode!.toUpperCase()}
+            </span>
+          </div>
+        )}
 
         {/* Bottom row: expiry countdown */}
         {post.expiresAt && (

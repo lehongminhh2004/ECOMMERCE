@@ -50,7 +50,7 @@ export default async function OrdersPage(props: PageProps<'/[locale]/account/ord
                 },
             },
         },
-        {useAuthToken: true}
+        {useAuthToken: true, languageCode: locale}
     );
 
     if (!data.activeCustomer) {

@@ -23,7 +23,7 @@ export default async function OrderDetailPage(props: PageProps<'/[locale]/accoun
 
     // Start the fetch in the page (dynamic parent) and pass promise into Suspense.
     const orderPromise = props.params.then(({code}) =>
-        query(GetOrderDetailQuery, {code}, {useAuthToken: true, fetch: {}})
+        query(GetOrderDetailQuery, {code}, {useAuthToken: true, languageCode: locale, fetch: {}})
     );
 
     return (

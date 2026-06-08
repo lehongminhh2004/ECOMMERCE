@@ -218,6 +218,10 @@ export interface Post {
    */
   discountPercent?: number | null;
   /**
+   * Mã coupon được tạo từ Vendure Admin (Promotions). Khách hàng có thể áp mã này trực tiếp vào giỏ hàng. VD: SUMMER20, SALE50, FREESHIP
+   */
+  couponCode?: string | null;
+  /**
    * Optional expiry date for this promotion. Shown as a countdown on the card.
    */
   expiresAt?: string | null;
@@ -463,6 +467,7 @@ export interface PostsSelect<T extends boolean = true> {
   author?: T;
   discountLabel?: T;
   discountPercent?: T;
+  couponCode?: T;
   expiresAt?: T;
   content?: T;
   updatedAt?: T;

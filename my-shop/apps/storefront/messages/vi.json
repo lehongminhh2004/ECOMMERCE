@@ -121,9 +121,21 @@
     "promotionCode": "Mã Khuyến Mãi",
     "enterDiscountCode": "Nhập mã giảm giá của bạn dưới đây",
     "remove": "Xóa",
-    "enterCode": "Nhập mã",
+    "enterCode": "Nhập mã (VD: SALE20)",
     "apply": "Áp dụng",
-    "sku": "SKU: {sku}"
+    "sku": "SKU: {sku}",
+    "youSave": "Bạn đang tiết kiệm được",
+    "invalidCode": "Mã không hợp lệ hoặc đã hết hạn",
+    "couponAppliedTitle": "Đã áp mã \"{code}\" thành công!",
+    "couponAppliedDescription": "Giảm giá đã được tính vào đơn hàng của bạn.",
+    "couponInvalidTitle": "Mã \"{code}\" không hợp lệ",
+    "couponInvalidDescription": "Mã không tồn tại hoặc đã hết hạn. Vui lòng kiểm tra lại.",
+    "couponAlreadyAppliedTitle": "Mã \"{code}\" đã được áp rồi",
+    "couponAlreadyAppliedDescription": "Bạn đã sử dụng mã này trong đơn hàng hiện tại.",
+    "couponOrderNotFoundTitle": "Không thể áp mã \"{code}\"",
+    "couponOrderNotFoundDescription": "Giỏ hàng chưa có sản phẩm. Thêm sản phẩm vào giỏ trước rồi thử lại.",
+    "couponConnectionErrorTitle": "Lỗi kết nối khi áp mã \"{code}\"",
+    "couponConnectionErrorDescription": "Server đang khởi động lại, vui lòng thử lại sau 30 giây."
   },
   "Checkout": {
     "pageTitle": "Thanh toán",
@@ -206,7 +218,8 @@
     "toBeCalculated": "Sẽ tính toán sau",
     "total": "Tổng thanh toán",
     "item": "sản phẩm",
-    "items": "sản phẩm"
+    "items": "sản phẩm",
+    "youSave": "Bạn tiết kiệm được"
   },
   "OrderStatus": {
     "AddingItems": "Đang thêm sản phẩm",
@@ -415,7 +428,16 @@
       "errorMessage": "Vui lòng thử lại sau hoặc liên hệ hỗ trợ nếu lỗi tiếp tục xảy ra.",
       "verifying": "Đang xác thực Email...",
       "verifyingDesc": "Vui lòng đợi trong giây lát trong khi chúng tôi xử lý xác thực email."
-    }
+    },
+    "savedDiscountCodes": "Mã Giảm Giá Đã Lưu",
+    "savedDiscountCodesDescription": "Các mã bạn đã lưu từ các bài viết khuyến mãi. Áp dụng ngay vào giỏ hàng hoặc sao chép để dùng sau.",
+    "noSavedCoupons": "Chưa có mã nào được lưu",
+    "noSavedCouponsDescription": "Nhấn nút Lưu khi xem bài viết khuyến mãi để lưu mã vào đây.",
+    "savedAt": "Lưu lúc {date}",
+    "copyCode": "Sao chép mã",
+    "applyingCoupon": "Đang áp...",
+    "applyCoupon": "Áp dụng",
+    "removeSavedCoupon": "Xóa mã đã lưu"
   },
   "NotFound": {
     "title": "Không Tìm Thấy Trang",
@@ -484,6 +506,23 @@
     "noArticles": "Chưa Có Bài Viết Nào",
     "noArticlesDesc": "Quay lại sau để xem các câu chuyện, hướng dẫn và tin tức thú vị.",
     "backToArticles": "Quay lại tất cả bài viết",
-    "noContent": "Bài viết này chưa có nội dung."
+    "noContent": "Bài viết này chưa có nội dung.",
+    "exclusiveOffer": "Ưu Đãi Độc Quyền",
+    "expiresAt": "Hết hạn: {date}",
+    "couponExpired": "Mã khuyến mãi {code} đã hết hạn",
+    "couponCode": "Mã khuyến mãi",
+    "copyCode": "Sao chép mã",
+    "copied": "Đã chép!",
+    "copy": "Sao chép",
+    "saveCode": "Lưu mã để dùng sau",
+    "unsaveCode": "Bỏ lưu mã",
+    "save": "Lưu mã",
+    "unsave": "Bỏ lưu",
+    "savedMessage": "Đã lưu vào danh sách mã của bạn",
+    "applying": "Đang áp dụng...",
+    "applyNow": "Áp dụng ngay vào giỏ hàng",
+    "couponHelpPrefix": "Nhấn ?Áp dụng ngay? để thêm mã vào giỏ hàng và thanh toán ngay.",
+    "couponHelpSuffix": "Hoặc sao chép mã và nhập thủ công tại trang",
+    "cartPage": "Giỏ hàng"
   }
 }

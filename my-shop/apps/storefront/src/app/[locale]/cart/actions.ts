@@ -9,16 +9,19 @@ import {
 } from '@/lib/vendure/mutations';
 import {getActiveCurrencyCode} from '@/lib/currency-server';
 import {updateTag} from 'next/cache';
+import {getLocale} from 'next-intl/server';
 
 export async function removeFromCart(lineId: string) {
     const currencyCode = await getActiveCurrencyCode();
-    await mutate(RemoveFromCartMutation, {lineId}, {useAuthToken: true, currencyCode});
+    const locale = await getLocale();
+    await mutate(RemoveFromCartMutation, {lineId}, {useAuthToken: true, languageCode: locale, currencyCode});
     updateTag('cart');
 }
 
 export async function adjustQuantity(lineId: string, quantity: number) {
     const currencyCode = await getActiveCurrencyCode();
-    await mutate(AdjustCartItemMutation, {lineId, quantity}, {useAuthToken: true, currencyCode});
+    const locale = await getLocale();
+    await mutate(AdjustCartItemMutation, {lineId, quantity}, {useAuthToken: true, languageCode: locale, currencyCode});
     updateTag('cart');
 }
 
@@ -27,7 +30,12 @@ export async function applyPromotionCode(formData: FormData) {
     if (!code) return;
 
     const currencyCode = await getActiveCurrencyCode();
-    await mutate(ApplyPromotionCodeMutation, {couponCode: code}, {useAuthToken: true, currencyCode});
+    const locale = await getLocale();
+    const {data} = await mutate(ApplyPromotionCodeMutation, {couponCode: code.trim().toUpperCase()}, {useAuthToken: true, languageCode: locale, currencyCode});
+    const result = (data as any)?.applyCouponCode;
+    if (!result || result.__typename !== 'Order') {
+        throw new Error(result?.message || 'Unable to apply promotion code');
+    }
     updateTag('cart');
 }
 
@@ -36,6 +44,7 @@ export async function removePromotionCode(formData: FormData) {
     if (!code) return;
 
     const currencyCode = await getActiveCurrencyCode();
-    await mutate(RemovePromotionCodeMutation, {couponCode: code}, {useAuthToken: true, currencyCode});
+    const locale = await getLocale();
+    await mutate(RemovePromotionCodeMutation, {couponCode: code}, {useAuthToken: true, languageCode: locale, currencyCode});
     updateTag('cart');
 }

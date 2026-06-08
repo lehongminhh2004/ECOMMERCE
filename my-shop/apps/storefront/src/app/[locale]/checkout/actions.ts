@@ -30,10 +30,11 @@ export async function setShippingAddress(
     shippingAddress: AddressInput,
     useSameForBilling: boolean
 ) {
+    const locale = await getLocale();
     const shippingResult = await mutate(
         SetOrderShippingAddressMutation,
         {input: shippingAddress},
-        {useAuthToken: true}
+        {useAuthToken: true, languageCode: locale}
     );
 
     if (shippingResult.data.setOrderShippingAddress.__typename !== 'Order') {
@@ -44,50 +45,50 @@ export async function setShippingAddress(
         await mutate(
             SetOrderBillingAddressMutation,
             {input: shippingAddress},
-            {useAuthToken: true}
+            {useAuthToken: true, languageCode: locale}
         );
     }
 
-    const locale = await getLocale();
     revalidatePath(`/${locale}/checkout`);
 }
 
 export async function setShippingMethod(shippingMethodId: string) {
+    const locale = await getLocale();
     const result = await mutate(
         SetOrderShippingMethodMutation,
         {shippingMethodId: [shippingMethodId]},
-        {useAuthToken: true}
+        {useAuthToken: true, languageCode: locale}
     );
 
     if (result.data.setOrderShippingMethod.__typename !== 'Order') {
         throw new Error('Failed to set shipping method');
     }
 
-    const locale = await getLocale();
     revalidatePath(`/${locale}/checkout`);
 }
 
 export async function createCustomerAddress(address: AddressInput) {
+    const locale = await getLocale();
     const result = await mutate(
         CreateCustomerAddressMutation,
         {input: address},
-        {useAuthToken: true}
+        {useAuthToken: true, languageCode: locale}
     );
 
     if (!result.data.createCustomerAddress) {
         throw new Error('Failed to create customer address');
     }
 
-    const locale = await getLocale();
     revalidatePath(`/${locale}/checkout`);
     return result.data.createCustomerAddress;
 }
 
 export async function transitionToArrangingPayment() {
+    const locale = await getLocale();
     const result = await mutate(
         TransitionOrderToStateMutation,
         {state: 'ArrangingPayment'},
-        {useAuthToken: true}
+        {useAuthToken: true, languageCode: locale}
     );
 
     if (result.data.transitionOrderToState?.__typename === 'OrderStateTransitionError') {
@@ -97,11 +98,11 @@ export async function transitionToArrangingPayment() {
         );
     }
 
-    const locale = await getLocale();
     revalidatePath(`/${locale}/checkout`);
 }
 
 export async function placeOrder(paymentMethodCode: string) {
+    const locale = await getLocale();
     // First, transition the order to ArrangingPayment state
     await transitionToArrangingPayment();
 
@@ -124,7 +125,7 @@ export async function placeOrder(paymentMethodCode: string) {
                 metadata,
             },
         },
-        {useAuthToken: true}
+        {useAuthToken: true, languageCode: locale}
     );
 
     if (result.data.addPaymentToOrder.__typename !== 'Order') {
@@ -140,7 +141,6 @@ export async function placeOrder(paymentMethodCode: string) {
     updateTag('cart');
     updateTag('active-order');
 
-    const locale = await getLocale();
     redirect({href: `/order-confirmation/${orderCode}`, locale});
 }
 
@@ -161,17 +161,17 @@ export type SetCustomerForOrderResult =
 export async function setCustomerForOrder(
     input: GuestCustomerInput
 ): Promise<SetCustomerForOrderResult> {
+    const locale = await getLocale();
     const result = await mutate(
         SetCustomerForOrderMutation,
         { input },
-        { useAuthToken: true }
+        { useAuthToken: true, languageCode: locale }
     );
 
     const response = result.data.setCustomerForOrder;
 
     switch (response.__typename) {
         case 'Order': {
-            const locale = await getLocale();
             revalidatePath(`/${locale}/checkout`);
             return { success: true };
         }

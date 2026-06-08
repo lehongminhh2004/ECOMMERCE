@@ -110,6 +110,27 @@ export default buildConfig({
         read: () => true,
       },
       hooks: {
+        beforeValidate: [
+          async ({ data }) => {
+            if (!data) return data
+
+            const hasPromotionData = Boolean(data.discountLabel)
+              || data.discountPercent != null
+              || Boolean(data.expiresAt)
+            const couponCode = typeof data.couponCode === 'string'
+              ? data.couponCode.trim().toUpperCase()
+              : ''
+
+            if (hasPromotionData && !couponCode) {
+              throw new Error('Promotion posts must include a Vendure coupon code created in Vendure Admin.')
+            }
+
+            return {
+              ...data,
+              couponCode: couponCode || null,
+            }
+          },
+        ],
         afterChange: [triggerRevalidate('posts')],
       },
       admin: {
@@ -161,6 +182,14 @@ export default buildConfig({
           max: 100,
           admin: {
             description: 'Numeric discount percentage (0-100). Used to render the badge color.',
+          },
+        },
+        {
+          name: 'couponCode',
+          label: 'Mã Coupon Vendure',
+          type: 'text',
+          admin: {
+            description: 'Mã coupon được tạo từ Vendure Admin (Promotions). Khách hàng có thể áp mã này trực tiếp vào giỏ hàng. VD: SUMMER20, SALE50, FREESHIP',
           },
         },
         {

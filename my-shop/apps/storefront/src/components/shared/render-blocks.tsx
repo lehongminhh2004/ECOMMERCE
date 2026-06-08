@@ -29,7 +29,7 @@ export function LexicalRenderer({ content }: { content: any }) {
         textElement = <span key={index} className="underline">{textElement}</span>
       }
       if (node.format & 16) { // Code
-        textElement = <code key={index} className="bg-neutral-100 dark:bg-neutral-800 text-pink-500 dark:text-pink-400 px-1 rounded font-mono text-sm">{textElement}</code>
+        textElement = <code key={index}>{textElement}</code>
       }
       return <React.Fragment key={index}>{textElement}</React.Fragment>
     }
@@ -38,34 +38,24 @@ export function LexicalRenderer({ content }: { content: any }) {
 
     switch (node.type) {
       case 'paragraph':
-        return <p key={index} className="mb-4 text-neutral-700 dark:text-neutral-300 leading-relaxed">{children}</p>
+        return <p key={index}>{children}</p>
       case 'heading': {
         const Tag = (node.tag || 'h2') as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-        const classes = {
-          h1: 'text-4xl font-extrabold mb-6 mt-8 tracking-tight',
-          h2: 'text-3xl font-bold mb-4 mt-6 tracking-tight',
-          h3: 'text-2xl font-semibold mb-3 mt-4',
-          h4: 'text-xl font-semibold mb-2 mt-4',
-          h5: 'text-lg font-medium mb-2',
-          h6: 'text-base font-medium mb-2',
-        }[Tag] || 'text-xl font-semibold mb-2'
-        return <Tag key={index} className={classes}>{children}</Tag>
+        return <Tag key={index}>{children}</Tag>
       }
       case 'list': {
         const Tag = node.listType === 'number' ? 'ol' : 'ul'
-        const classes = node.listType === 'number' ? 'list-decimal pl-6 mb-4' : 'list-disc pl-6 mb-4'
-        return <Tag key={index} className={classes}>{children}</Tag>
+        return <Tag key={index}>{children}</Tag>
       }
       case 'listitem':
-        return <li key={index} className="mb-1">{children}</li>
+        return <li key={index}>{children}</li>
       case 'quote':
-        return <blockquote key={index} className="border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 italic my-4 text-neutral-600 dark:text-neutral-400">{children}</blockquote>
+        return <blockquote key={index}>{children}</blockquote>
       case 'link':
         return (
           <a
             key={index}
             href={node.fields?.url}
-            className="text-primary hover:underline font-medium decoration-1"
             target={node.fields?.newTab ? '_blank' : undefined}
             rel="noopener noreferrer"
           >

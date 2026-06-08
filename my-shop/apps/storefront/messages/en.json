@@ -121,9 +121,21 @@
     "promotionCode": "Promotion Code",
     "enterDiscountCode": "Enter your discount code below",
     "remove": "Remove",
-    "enterCode": "Enter code",
+    "enterCode": "Enter code (e.g. SALE20)",
     "apply": "Apply",
-    "sku": "SKU: {sku}"
+    "sku": "SKU: {sku}",
+    "youSave": "You're saving",
+    "invalidCode": "Invalid or expired promo code",
+    "couponAppliedTitle": "Coupon \"{code}\" applied successfully!",
+    "couponAppliedDescription": "The discount has been applied to your order.",
+    "couponInvalidTitle": "Coupon \"{code}\" is not valid",
+    "couponInvalidDescription": "This code does not exist or has expired. Please check and try again.",
+    "couponAlreadyAppliedTitle": "Coupon \"{code}\" is already applied",
+    "couponAlreadyAppliedDescription": "You already used this code on the current order.",
+    "couponOrderNotFoundTitle": "Cannot apply coupon \"{code}\"",
+    "couponOrderNotFoundDescription": "Your cart is empty. Add products to your cart first, then try again.",
+    "couponConnectionErrorTitle": "Connection error while applying coupon \"{code}\"",
+    "couponConnectionErrorDescription": "The server may be restarting. Please try again in 30 seconds."
   },
   "Checkout": {
     "pageTitle": "Checkout",
@@ -206,7 +218,8 @@
     "toBeCalculated": "To be calculated",
     "total": "Total",
     "item": "item",
-    "items": "items"
+    "items": "items",
+    "youSave": "You are saving"
   },
   "OrderStatus": {
     "AddingItems": "Adding Items",
@@ -415,7 +428,16 @@
       "errorMessage": "Please try again later or contact support if the problem persists.",
       "verifying": "Verifying Email...",
       "verifyingDesc": "Please wait while we verify your email address."
-    }
+    },
+    "savedDiscountCodes": "Saved Discount Codes",
+    "savedDiscountCodesDescription": "Codes you saved from promotional posts. Apply them to your cart or copy them for later.",
+    "noSavedCoupons": "No saved codes yet",
+    "noSavedCouponsDescription": "Click Save while viewing a promotional post to keep a code here.",
+    "savedAt": "Saved on {date}",
+    "copyCode": "Copy code",
+    "applyingCoupon": "Applying...",
+    "applyCoupon": "Apply",
+    "removeSavedCoupon": "Remove saved code"
   },
   "NotFound": {
     "title": "Page Not Found",
@@ -484,6 +506,23 @@
     "noArticles": "No Articles Yet",
     "noArticlesDesc": "Check back later for interesting stories, guides, and news.",
     "backToArticles": "Back to all articles",
-    "noContent": "No content in this post."
+    "noContent": "No content in this post.",
+    "exclusiveOffer": "Exclusive Offer",
+    "expiresAt": "Expires: {date}",
+    "couponExpired": "Coupon code {code} has expired",
+    "couponCode": "Coupon code",
+    "copyCode": "Copy code",
+    "copied": "Copied!",
+    "copy": "Copy",
+    "saveCode": "Save code for later",
+    "unsaveCode": "Remove saved code",
+    "save": "Save code",
+    "unsave": "Remove saved code",
+    "savedMessage": "Saved to your coupon list",
+    "applying": "Applying...",
+    "applyNow": "Apply to cart now",
+    "couponHelpPrefix": "Click ?Apply to cart now? to add this code to your cart and continue checkout.",
+    "couponHelpSuffix": "Or copy the code and enter it manually on the",
+    "cartPage": "Cart page"
   }
 }
