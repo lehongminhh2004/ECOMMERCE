@@ -10,6 +10,7 @@ import {getRouteLocale} from '@/i18n/server';
 import {getTranslations} from 'next-intl/server';
 import {query} from '@/lib/vendure/api';
 import {graphql} from '@/graphql';
+import { getVendureAssetUrl } from '@/lib/utils';
 
 const GetOrderByCodeQuery = graphql(`
     query GetOrderByCode($code: String!) {
@@ -95,7 +96,7 @@ export async function OrderConfirmation({paramsPromise}: OrderConfirmationProps)
                                 {line.productVariant.product.featuredAsset && (
                                     <div className="flex-shrink-0">
                                         <Image
-                                            src={line.productVariant.product.featuredAsset.preview}
+                                            src={getVendureAssetUrl(line.productVariant.product.featuredAsset.preview)}
                                             alt={line.productVariant.name}
                                             width={80}
                                             height={80}

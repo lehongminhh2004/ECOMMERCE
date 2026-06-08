@@ -10,6 +10,7 @@ import { OrderLine } from './types';
 import { useCheckout } from './checkout-provider';
 import { Price } from '@/components/commerce/price';
 import {useTranslations} from 'next-intl';
+import { getVendureAssetUrl } from '@/lib/utils';
 
 function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckout>['order']; t: ReturnType<typeof useTranslations<'Checkout'>> }) {
   const totalSavings = order.discounts
@@ -24,7 +25,7 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
             {line.productVariant.product.featuredAsset ? (
               <div className="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-muted">
                 <Image
-                  src={line.productVariant.product.featuredAsset.preview}
+                  src={getVendureAssetUrl(line.productVariant.product.featuredAsset.preview)}
                   alt={line.productVariant.name}
                   width={56}
                   height={56}

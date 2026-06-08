@@ -27,6 +27,7 @@ import {toOgLocale} from '@/i18n/locale-utils';
 import {getActiveCurrencyCode} from '@/lib/currency-server';
 import {getRouteLocale} from '@/i18n/server';
 import {getTranslations} from 'next-intl/server';
+import { getVendureAssetUrl } from '@/lib/utils';
 
 async function getCollectionProducts(slug: string, searchParams: { [key: string]: string | string[] | undefined }, currencyCode: string) {
     'use cache';
@@ -94,14 +95,14 @@ export async function generateMetadata({
             type: 'website',
             locale: ogLocale,
             url: buildCanonicalUrl(`/${locale}${collectionPath}`),
-            images: buildOgImages(collection.featuredAsset?.preview, collection.name),
+            images: buildOgImages(collection.featuredAsset?.preview ? getVendureAssetUrl(collection.featuredAsset.preview) : undefined, collection.name),
         },
         twitter: {
             card: 'summary_large_image',
             title: collection.name,
             description,
             images: collection.featuredAsset?.preview
-                ? [collection.featuredAsset.preview]
+                ? [getVendureAssetUrl(collection.featuredAsset.preview)]
                 : undefined,
         },
     };

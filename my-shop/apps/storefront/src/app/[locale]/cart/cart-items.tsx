@@ -5,6 +5,7 @@ import {Minus, Plus, X} from 'lucide-react';
 import {Price} from '@/components/commerce/price';
 import {removeFromCart, adjustQuantity} from './actions';
 import {getTranslations} from 'next-intl/server';
+import { getVendureAssetUrl } from '@/lib/utils';
 
 type ActiveOrder = {
     id: string;
@@ -58,7 +59,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                             className="flex-shrink-0"
                         >
                             <Image
-                                src={line.productVariant.product.featuredAsset.preview}
+                                src={getVendureAssetUrl(line.productVariant.product.featuredAsset.preview)}
                                 alt={line.productVariant.name}
                                 width={120}
                                 height={120}

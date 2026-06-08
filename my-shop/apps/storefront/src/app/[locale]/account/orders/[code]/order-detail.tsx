@@ -14,6 +14,7 @@ import {formatDate} from '@/lib/format';
 import {useLocale, useTranslations} from 'next-intl';
 import type {ResultOf} from '@/graphql';
 import type {GetOrderDetailQuery} from '@/lib/vendure/queries';
+import { getVendureAssetUrl } from '@/lib/utils';
 
 type OrderByCode = NonNullable<ResultOf<typeof GetOrderDetailQuery>['orderByCode']>;
 type OrderLineItem = OrderByCode['lines'][number];
@@ -66,7 +67,7 @@ export function OrderDetail({orderPromise}: OrderDetailProps) {
                                         <div className="relative h-20 w-20 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
                                             {line.productVariant.product.featuredAsset && (
                                                 <Image
-                                                    src={line.productVariant.product.featuredAsset.preview}
+                                                    src={getVendureAssetUrl(line.productVariant.product.featuredAsset.preview)}
                                                     alt={line.productVariant.name}
                                                     fill
                                                     className="object-cover"

@@ -34,6 +34,7 @@ import {getTranslations} from 'next-intl/server';
 import {toOgLocale} from '@/i18n/locale-utils';
 import {getActiveCurrencyCode} from '@/lib/currency-server';
 import {getRouteLocale} from '@/i18n/server';
+import { getVendureAssetUrl } from '@/lib/utils';
 
 const getProductData = cache(async (slug: string, currencyCode: string) => {
     'use cache';
@@ -65,7 +66,7 @@ export async function generateMetadata({
 
     const description = truncateDescription(product.description);
     const fallbackDescription = t('shopProductAt', {name: product.name, siteName: SITE_NAME});
-    const ogImage = product.assets?.[0]?.preview;
+    const ogImage = product.assets?.[0]?.preview ? getVendureAssetUrl(product.assets[0].preview) : undefined;
     const ogLocale = toOgLocale(locale);
     const productPath = `/product/${product.slug}`;
 

@@ -6,6 +6,7 @@ import {Suspense} from "react";
 import { Link } from '@/i18n/navigation';
 import {useTranslations} from 'next-intl';
 import type {ProductCardPrice} from '@/lib/vendure/product-card-price-overrides';
+import {getVendureAssetUrl} from '@/lib/utils';
 
 interface ProductCardProps {
     product: FragmentOf<typeof ProductCardFragment>;
@@ -26,7 +27,7 @@ export function ProductCard({product: productProp, priceOverride}: ProductCardPr
             <div className="aspect-square relative bg-muted overflow-hidden">
                 {product.productAsset ? (
                     <Image
-                        src={product.productAsset.preview}
+                        src={getVendureAssetUrl(product.productAsset.preview)}
                         alt={product.productName}
                         fill
                         className="object-cover group-hover:scale-105 group-hover:opacity-90 transition-all duration-500"
