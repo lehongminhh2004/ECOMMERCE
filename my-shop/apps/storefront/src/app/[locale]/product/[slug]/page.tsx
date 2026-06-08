@@ -36,11 +36,10 @@ import {getActiveCurrencyCode} from '@/lib/currency-server';
 import {getRouteLocale} from '@/i18n/server';
 import { getVendureAssetUrl } from '@/lib/utils';
 
-const getProductData = cache(async (slug: string, currencyCode: string) => {
+const getProductData = cache(async (slug: string, locale: string, currencyCode: string) => {
     'use cache';
     cacheLife('hours');
 
-    const locale = await getRouteLocale();
     cacheTag(`product-${slug}-${locale}-${currencyCode}`);
     cacheTag('products');
 
@@ -53,7 +52,7 @@ export async function generateMetadata({
     const { slug } = await params;
     const locale = await getRouteLocale();
     const currencyCode = await getActiveCurrencyCode();
-    const result = await getProductData(slug, currencyCode);
+    const result = await getProductData(slug, locale, currencyCode);
     const product = result.data?.product;
 
     const t = await getTranslations({locale, namespace: 'Product'});
@@ -103,7 +102,7 @@ export default async function ProductDetailPage({params, searchParams}: PageProp
     const currencyCode = await getActiveCurrencyCode();
     const t = await getTranslations({locale, namespace: 'Product'});
 
-    const result = await getProductData(slug, currencyCode);
+    const result = await getProductData(slug, locale, currencyCode);
 
     const product = result.data?.product;
 
