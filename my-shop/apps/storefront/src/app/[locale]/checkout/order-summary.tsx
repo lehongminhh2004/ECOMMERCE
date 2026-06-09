@@ -9,10 +9,12 @@ import { Separator } from '@/components/ui/separator';
 import { OrderLine } from './types';
 import { useCheckout } from './checkout-provider';
 import { Price } from '@/components/commerce/price';
-import {useTranslations} from 'next-intl';
+import {useLocale, useTranslations} from 'next-intl';
 import { getVendureAssetUrl, shouldUseUnoptimized } from '@/lib/utils';
+import {getLocalizedProductName} from '@/lib/vendure/localized-overrides';
 
 function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckout>['order']; t: ReturnType<typeof useTranslations<'Checkout'>> }) {
+  const locale = useLocale();
   const totalSavings = order.discounts
     ? order.discounts.reduce((sum: number, d: { amountWithTax: number }) => sum + Math.abs(d.amountWithTax), 0)
     : 0;
@@ -20,8 +22,15 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
   return (
     <div className="space-y-4">
       <div className="space-y-3">
-        {order.lines.map((line: OrderLine) => (
-          <div key={line.id} className="flex gap-3">
+        {order.lines.map((line: OrderLine) => {
+          const productName = getLocalizedProductName(
+            line.productVariant.product.slug,
+            line.productVariant.product.name,
+            locale,
+          );
+
+          return (
+            <div key={line.id} className="flex gap-3">
             {line.productVariant.product.featuredAsset ? (
               <div className="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-muted">
                 <Image
@@ -40,7 +49,7 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
             )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium line-clamp-2">
-                {line.productVariant.product.name}
+                {productName}
               </p>
               {line.productVariant.name !== line.productVariant.product.name && (
                 <p className="text-xs text-muted-foreground">
@@ -54,8 +63,9 @@ function OrderSummaryContent({ order, t }: { order: ReturnType<typeof useCheckou
             <div className="text-sm font-medium">
               <Price value={line.linePriceWithTax} currencyCode={order.currencyCode} />
             </div>
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
 
       <Separator />

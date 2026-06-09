@@ -3,6 +3,7 @@ import {cacheLife, cacheTag} from 'next/cache';
 import {getTopCollections} from '@/lib/vendure/cached';
 import {MobileNav} from '@/components/layout/navbar/mobile-nav';
 import {getNavigation} from '@/lib/payload/api';
+import {localizeCollection} from '@/lib/vendure/localized-overrides';
 
 export async function MobileNavWrapper() {
     "use cache";
@@ -22,8 +23,8 @@ export async function MobileNavWrapper() {
         getTopCollections(locale),
     ]);
 
+    const localizedCollections = collections.map((collection) => localizeCollection(collection, locale));
     const cmsLinks = navigation?.links || [];
 
-    return <MobileNav collections={collections} cmsLinks={cmsLinks} />;
+    return <MobileNav collections={localizedCollections} cmsLinks={cmsLinks} />;
 }
-

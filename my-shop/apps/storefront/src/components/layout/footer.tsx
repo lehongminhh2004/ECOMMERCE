@@ -6,6 +6,7 @@ import { NavigationLink } from '@/components/shared/navigation-link';
 import { getTranslations } from 'next-intl/server';
 import { getFooter } from '@/lib/payload/api';
 import { Link2 } from 'lucide-react';
+import {localizeCollection} from '@/lib/vendure/localized-overrides';
 
 const COPYRIGHT_YEAR = 2026;
 
@@ -75,6 +76,29 @@ const cmsLinkTranslations: Record<string, string> = {
 
 function getCmsLinkLabel(label: string, locale: string) {
     if (locale === 'vi') {
+        switch (label) {
+            case 'Shop':
+                return 'Cửa hàng';
+            case 'Deals':
+                return 'Ưu đãi';
+            case 'Summer Sale':
+                return 'Khuyến mãi hè';
+            case 'Terms of Service':
+                return 'Điều khoản dịch vụ';
+            case 'Privacy Policy':
+                return 'Chính sách bảo mật';
+            case 'About Us':
+            case 'about us':
+                return 'Giới thiệu';
+            case 'Contact':
+            case 'Contact Us':
+                return 'Liên hệ';
+            case 'Shipping Policy':
+                return 'Chính sách vận chuyển';
+            case 'Return Policy':
+                return 'Chính sách đổi trả';
+        }
+
         return cmsLinkTranslations[label] || label;
     }
     return label;
@@ -87,7 +111,7 @@ export async function Footer({ locale }: { locale: string }) {
     cacheTag(`footer-${locale}`);
 
     const t = await getTranslations({ locale, namespace: 'Footer' });
-    const collections = await getTopCollections(locale);
+    const collections = (await getTopCollections(locale)).map((collection) => localizeCollection(collection, locale));
     let cmsFooter = null;
     try {
         cmsFooter = await getFooter();

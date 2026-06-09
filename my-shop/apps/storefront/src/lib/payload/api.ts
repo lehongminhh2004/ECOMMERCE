@@ -3,6 +3,7 @@ import { GetProductDetailQuery, GetProductDetailByIdQuery } from '@/lib/vendure/
 import { getRouteLocale } from '@/i18n/server'
 import { getActiveCurrencyCode } from '@/lib/currency-server'
 import { cacheLife, cacheTag } from 'next/cache'
+import {localizeProduct} from '@/lib/vendure/localized-overrides'
 
 
 
@@ -254,7 +255,7 @@ async function getVendureProductsForSlugsCached(slugs: string[], locale: string,
   const productPromises = slugs.map(async (slug) => {
     try {
       const result = await queryVendure(GetProductDetailQuery, { slug }, { languageCode: locale, currencyCode })
-      const product = result.data?.product
+      const product = result.data?.product ? localizeProduct(result.data.product, locale) : null
       if (!product) return null
       
       const prices = product.variants.map((v) => v.priceWithTax)
@@ -296,7 +297,7 @@ async function getVendureProductByIdCached(id: string, locale: string, currencyC
   
   try {
     const result = await queryVendure(GetProductDetailByIdQuery, { id }, { languageCode: locale, currencyCode })
-    const product = result.data?.product
+    const product = result.data?.product ? localizeProduct(result.data.product, locale) : null
     if (!product) return null
     
     const prices = product.variants.map((v) => v.priceWithTax)

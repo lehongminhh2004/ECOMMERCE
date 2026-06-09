@@ -6,6 +6,8 @@ import {Price} from '@/components/commerce/price';
 import {removeFromCart, adjustQuantity} from './actions';
 import {getTranslations} from 'next-intl/server';
 import { getVendureAssetUrl, shouldUseUnoptimized } from '@/lib/utils';
+import {getRouteLocale} from '@/i18n/server';
+import {getLocalizedProductName} from '@/lib/vendure/localized-overrides';
 
 type ActiveOrder = {
     id: string;
@@ -31,6 +33,7 @@ type ActiveOrder = {
 };
 
 export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null }) {
+    const locale = await getRouteLocale();
     const t = await getTranslations('Cart');
     if (!activeOrder || activeOrder.lines.length === 0) {
         return (
@@ -48,11 +51,18 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
 
     return (
         <div className="lg:col-span-2 divide-y divide-border">
-            {activeOrder.lines.map((line) => (
-                <div
-                    key={line.id}
-                    className="flex flex-col sm:flex-row gap-4 p-4 first:rounded-t-xl last:rounded-b-xl border-x first:border-t last:border-b bg-card transition-colors duration-200 hover:bg-muted/30"
-                >
+            {activeOrder.lines.map((line) => {
+                const productName = getLocalizedProductName(
+                    line.productVariant.product.slug,
+                    line.productVariant.product.name,
+                    locale,
+                );
+
+                return (
+                    <div
+                        key={line.id}
+                        className="flex flex-col sm:flex-row gap-4 p-4 first:rounded-t-xl last:rounded-b-xl border-x first:border-t last:border-b bg-card transition-colors duration-200 hover:bg-muted/30"
+                    >
                     {line.productVariant.product.featuredAsset && (
                         <Link
                             href={`/product/${line.productVariant.product.slug}`}
@@ -74,7 +84,7 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                             href={`/product/${line.productVariant.product.slug}`}
                             className="font-semibold hover:underline block"
                         >
-                            {line.productVariant.product.name}
+                            {productName}
                         </Link>
                         {line.productVariant.name !== line.productVariant.product.name && (
                             <p className="text-sm text-muted-foreground mt-1">
@@ -159,8 +169,9 @@ export async function CartItems({activeOrder}: { activeOrder: ActiveOrder | null
                             <Price value={line.unitPriceWithTax} currencyCode={activeOrder.currencyCode}/> {t('each')}
                         </p>
                     </div>
-                </div>
-            ))}
+                    </div>
+                );
+            })}
         </div>
     );
 }

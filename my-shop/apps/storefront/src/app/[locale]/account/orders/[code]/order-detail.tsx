@@ -15,6 +15,7 @@ import {useLocale, useTranslations} from 'next-intl';
 import type {ResultOf} from '@/graphql';
 import type {GetOrderDetailQuery} from '@/lib/vendure/queries';
 import { getVendureAssetUrl, shouldUseUnoptimized } from '@/lib/utils';
+import {getLocalizedProductName} from '@/lib/vendure/localized-overrides';
 
 type OrderByCode = NonNullable<ResultOf<typeof GetOrderDetailQuery>['orderByCode']>;
 type OrderLineItem = OrderByCode['lines'][number];
@@ -62,8 +63,15 @@ export function OrderDetail({orderPromise}: OrderDetailProps) {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                {order.lines.map((line: OrderLineItem) => (
-                                    <div key={line.id} className="flex gap-4">
+                                {order.lines.map((line: OrderLineItem) => {
+                                    const productName = getLocalizedProductName(
+                                        line.productVariant.product.slug,
+                                        line.productVariant.product.name,
+                                        locale,
+                                    );
+
+                                    return (
+                                        <div key={line.id} className="flex gap-4">
                                         <div className="relative h-20 w-20 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
                                             {line.productVariant.product.featuredAsset && (
                                                 <Image
@@ -80,7 +88,7 @@ export function OrderDetail({orderPromise}: OrderDetailProps) {
                                                 href={`/product/${line.productVariant.product.slug}`}
                                                 className="font-medium hover:underline"
                                             >
-                                                {line.productVariant.product.name}
+                                                {productName}
                                             </Link>
                                             <p className="text-sm text-muted-foreground">
                                                 {line.productVariant.name}
@@ -97,8 +105,9 @@ export function OrderDetail({orderPromise}: OrderDetailProps) {
                                                 {t('qty', {quantity: line.quantity})} × <Price value={line.unitPriceWithTax} currencyCode={order.currencyCode}/>
                                             </p>
                                         </div>
-                                    </div>
-                                ))}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </CardContent>
                     </Card>

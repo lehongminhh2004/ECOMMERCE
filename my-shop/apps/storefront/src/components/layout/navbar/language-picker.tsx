@@ -6,7 +6,7 @@ import {routing, localeNames} from '@/i18n/routing';
 import {Globe} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {switchLocaleCurrency} from '@/lib/actions/switch-locale';
-import {useTransition} from 'react';
+import {useEffect, useState, useTransition} from 'react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -20,20 +20,29 @@ export function LanguagePicker() {
     const router = useRouter();
     const pathname = usePathname();
     const [isPending, startTransition] = useTransition();
+    const [selectedLocale, setSelectedLocale] = useState(locale);
+
+    useEffect(() => {
+        setSelectedLocale(locale);
+    }, [locale]);
 
     const handleLocaleChange = (newLocale: string) => {
+        if (newLocale === selectedLocale) {
+            return;
+        }
+
+        setSelectedLocale(newLocale);
         startTransition(async () => {
             await switchLocaleCurrency(newLocale);
-            router.replace(pathname, {locale: newLocale});
-            router.refresh();
+            router.replace(pathname, {locale: newLocale, scroll: false});
         });
     };
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="gap-1.5" />}>
+            <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="gap-1.5" aria-label={t('switchLanguage')} />}>
                 <Globe className="size-4" />
-                <span>{localeNames[locale as keyof typeof localeNames] ?? locale.toUpperCase()}</span>
+                <span>{localeNames[selectedLocale as keyof typeof localeNames] ?? selectedLocale.toUpperCase()}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 {routing.locales.map((loc) => (
@@ -43,7 +52,7 @@ export function LanguagePicker() {
                         disabled={isPending}
                     >
                         <span>{localeNames[loc] ?? loc.toUpperCase()}</span>
-                        {locale === loc && <span className="ml-auto text-xs">✓</span>}
+                        {selectedLocale === loc && <span className="ml-auto text-xs">✓</span>}
                     </DropdownMenuItem>
                 ))}
             </DropdownMenuContent>

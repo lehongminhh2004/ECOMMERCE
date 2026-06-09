@@ -4,13 +4,14 @@ import { SearchX, Home, ShoppingBag } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import { getTopCollections } from '@/lib/vendure/cached';
+import {localizeCollection} from '@/lib/vendure/localized-overrides';
 
 export default async function NotFound() {
     const locale = await getRouteLocale();
     const t = await getTranslations({locale, namespace: 'NotFound'});
     let collections: { id: string; name: string; slug: string }[] = [];
     try {
-        collections = await getTopCollections(locale);
+        collections = (await getTopCollections(locale)).map((collection) => localizeCollection(collection, locale));
     } catch {
         // Gracefully handle if collections can't be fetched
     }

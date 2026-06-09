@@ -11,11 +11,16 @@ import {ShoppingCart, CheckCircle2} from 'lucide-react';
 import {addToCart} from '@/app/[locale]/product/[slug]/actions';
 import {toast} from 'sonner';
 import {Price} from '@/components/commerce/price';
-import {useTranslations} from 'next-intl';
+import {useLocale, useTranslations} from 'next-intl';
+import {
+    getLocalizedProductDescription,
+    getLocalizedProductName,
+} from '@/lib/vendure/localized-overrides';
 
 interface ProductInfoProps {
     product: {
         id: string;
+        slug?: string;
         name: string;
         description: string;
         variants: Array<{
@@ -52,12 +57,15 @@ interface ProductInfoProps {
 }
 
 export function ProductInfo({product, searchParams, currencyCode}: ProductInfoProps) {
+    const locale = useLocale();
     const t = useTranslations('Product');
     const pathname = usePathname();
     const router = useRouter();
     const currentSearchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
     const [isAdded, setIsAdded] = useState(false);
+    const productName = getLocalizedProductName(product.slug, product.name, locale);
+    const productDescription = getLocalizedProductDescription(product.slug, product.description, locale);
 
     // Initialize selected options from URL
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
@@ -124,7 +132,7 @@ export function ProductInfo({product, searchParams, currencyCode}: ProductInfoPr
             if (result.success) {
                 setIsAdded(true);
                 toast.success(t('addedToCartMessage'), {
-                    description: t('addedToCartDescription', {name: product.name}),
+                    description: t('addedToCartDescription', {name: productName}),
                 });
 
                 // Reset the added state after 2 seconds
@@ -144,7 +152,7 @@ export function ProductInfo({product, searchParams, currencyCode}: ProductInfoPr
         <div className="space-y-6">
             {/* Product Title & Price */}
             <div className="space-y-2">
-                <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{product.name}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{productName}</h1>
                 {selectedVariant && (
                     <p className="text-2xl md:text-3xl text-muted-foreground font-semibold mt-3">
                         <Price value={selectedVariant.priceWithTax} currencyCode={currencyCode}/>
@@ -156,7 +164,7 @@ export function ProductInfo({product, searchParams, currencyCode}: ProductInfoPr
 
             {/* Product Description */}
             <div className="prose prose-sm max-w-none text-muted-foreground">
-                <div dangerouslySetInnerHTML={{__html: product.description}}/>
+                <div dangerouslySetInnerHTML={{__html: productDescription}}/>
             </div>
 
             {/* Option Groups */}

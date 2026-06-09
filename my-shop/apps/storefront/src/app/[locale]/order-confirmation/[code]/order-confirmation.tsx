@@ -11,6 +11,7 @@ import {getTranslations} from 'next-intl/server';
 import {query} from '@/lib/vendure/api';
 import {graphql} from '@/graphql';
 import { getVendureAssetUrl, shouldUseUnoptimized } from '@/lib/utils';
+import {getLocalizedProductName} from '@/lib/vendure/localized-overrides';
 
 const GetOrderByCodeQuery = graphql(`
     query GetOrderByCode($code: String!) {
@@ -91,8 +92,15 @@ export async function OrderConfirmation({paramsPromise}: OrderConfirmationProps)
                         <CardTitle>{t('orderSummary')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {order.lines.map((line) => (
-                            <div key={line.id} className="flex gap-4 items-center">
+                        {order.lines.map((line) => {
+                            const productName = getLocalizedProductName(
+                                line.productVariant.product.slug,
+                                line.productVariant.product.name,
+                                locale,
+                            );
+
+                            return (
+                                <div key={line.id} className="flex gap-4 items-center">
                                 {line.productVariant.product.featuredAsset && (
                                     <div className="flex-shrink-0">
                                         <Image
@@ -106,7 +114,7 @@ export async function OrderConfirmation({paramsPromise}: OrderConfirmationProps)
                                     </div>
                                 )}
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-medium">{line.productVariant.product.name}</p>
+                                    <p className="font-medium">{productName}</p>
                                     {line.productVariant.name !== line.productVariant.product.name && (
                                         <p className="text-sm text-muted-foreground">
                                             {line.productVariant.name}
@@ -119,8 +127,9 @@ export async function OrderConfirmation({paramsPromise}: OrderConfirmationProps)
                                         <Price value={line.linePriceWithTax} currencyCode={order.currencyCode}/>
                                     </p>
                                 </div>
-                            </div>
-                        ))}
+                                </div>
+                            );
+                        })}
 
                         <Separator/>
 

@@ -4,9 +4,10 @@ import {ProductCardFragment} from '@/lib/vendure/fragments';
 import {Price} from '@/components/commerce/price';
 import {Suspense} from "react";
 import { Link } from '@/i18n/navigation';
-import {useTranslations} from 'next-intl';
+import {useLocale, useTranslations} from 'next-intl';
 import type {ProductCardPrice} from '@/lib/vendure/product-card-price-overrides';
 import {getVendureAssetUrl, shouldUseUnoptimized} from '@/lib/utils';
+import {getLocalizedProductName} from '@/lib/vendure/localized-overrides';
 
 interface ProductCardProps {
     product: FragmentOf<typeof ProductCardFragment>;
@@ -14,10 +15,12 @@ interface ProductCardProps {
 }
 
 export function ProductCard({product: productProp, priceOverride}: ProductCardProps) {
+    const locale = useLocale();
     const t = useTranslations('Product');
     const product = readFragment(ProductCardFragment, productProp);
     const priceWithTax = priceOverride?.priceWithTax ?? product.priceWithTax;
     const currencyCode = priceOverride?.currencyCode ?? product.currencyCode;
+    const productName = getLocalizedProductName(product.slug, product.productName, locale);
 
     return (
         <Link
@@ -31,7 +34,7 @@ export function ProductCard({product: productProp, priceOverride}: ProductCardPr
                         return (
                             <Image
                                 src={src}
-                                alt={product.productName}
+                                alt={productName}
                                 fill
                                 unoptimized={shouldUseUnoptimized(src)}
                                 className="object-cover group-hover:scale-105 group-hover:opacity-90 transition-all duration-500"
@@ -47,7 +50,7 @@ export function ProductCard({product: productProp, priceOverride}: ProductCardPr
             </div>
             <div className="p-4 space-y-2">
                 <h3 className="font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                    {product.productName}
+                    {productName}
                 </h3>
                 <Suspense fallback={<div className="h-8 w-36 rounded bg-muted"></div>}>
                     <p className="text-lg font-bold tracking-tight">

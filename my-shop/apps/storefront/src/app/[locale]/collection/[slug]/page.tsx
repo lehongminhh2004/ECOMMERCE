@@ -28,6 +28,7 @@ import {getActiveCurrencyCode} from '@/lib/currency-server';
 import {getRouteLocale} from '@/i18n/server';
 import {getTranslations} from 'next-intl/server';
 import { getVendureAssetUrl } from '@/lib/utils';
+import {localizeCollection} from '@/lib/vendure/localized-overrides';
 
 async function getCollectionProducts(slug: string, searchParams: { [key: string]: string | string[] | undefined }, currencyCode: string) {
     'use cache';
@@ -64,7 +65,7 @@ export async function generateMetadata({
     const { slug } = await params;
     const locale = await getRouteLocale();
     const result = await getCollectionMetadata(slug);
-    const collection = result.data?.collection;
+    const collection = result.data?.collection ? localizeCollection(result.data.collection, locale) : null;
 
     const t = await getTranslations({locale, namespace: 'Product'});
 
@@ -118,7 +119,10 @@ export default async function CollectionPage({params, searchParams}: PageProps<'
 
     const productDataPromise = getCollectionProducts(slug, searchParamsResolved, currencyCode);
     const collectionResult = await getCollectionMetadata(slug);
-    const collectionName = collectionResult.data?.collection?.name ?? slug;
+    const collection = collectionResult.data?.collection
+        ? localizeCollection(collectionResult.data.collection, locale)
+        : null;
+    const collectionName = collection?.name ?? slug;
 
     return (
         <div className="container mx-auto px-4 py-8 mt-16">

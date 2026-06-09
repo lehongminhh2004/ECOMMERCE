@@ -35,6 +35,7 @@ import {toOgLocale} from '@/i18n/locale-utils';
 import {getActiveCurrencyCode} from '@/lib/currency-server';
 import {getRouteLocale} from '@/i18n/server';
 import { getVendureAssetUrl } from '@/lib/utils';
+import {localizeCollection, localizeProduct} from '@/lib/vendure/localized-overrides';
 
 const getProductData = cache(async (slug: string, locale: string, currencyCode: string) => {
     'use cache';
@@ -53,7 +54,7 @@ export async function generateMetadata({
     const locale = await getRouteLocale();
     const currencyCode = await getActiveCurrencyCode(locale);
     const result = await getProductData(slug, locale, currencyCode);
-    const product = result.data?.product;
+    const product = result.data?.product ? localizeProduct(result.data.product, locale) : null;
 
     const t = await getTranslations({locale, namespace: 'Product'});
 
@@ -104,14 +105,15 @@ export default async function ProductDetailPage({params, searchParams}: PageProp
 
     const result = await getProductData(slug, locale, currencyCode);
 
-    const product = result.data?.product;
+    const product = result.data?.product ? localizeProduct(result.data.product, locale) : null;
 
     if (!product) {
         notFound();
     }
 
     // Get the primary collection (prefer deepest nested / most specific)
-    const primaryCollection = product.collections?.find(c => c.parent?.id) ?? product.collections?.[0];
+    const primaryCollectionRaw = product.collections?.find(c => c.parent?.id) ?? product.collections?.[0];
+    const primaryCollection = primaryCollectionRaw ? localizeCollection(primaryCollectionRaw, locale) : null;
 
     return (
         <>

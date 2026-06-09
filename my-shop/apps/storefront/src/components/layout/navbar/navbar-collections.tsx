@@ -1,4 +1,3 @@
-import {getRouteLocale} from '@/i18n/server';
 import {cacheLife, cacheTag} from 'next/cache';
 import {getTopCollections} from '@/lib/vendure/cached';
 import {
@@ -7,6 +6,7 @@ import {
     NavigationMenuItem,
 } from '@/components/ui/navigation-menu';
 import {NavbarLink} from '@/components/layout/navbar/navbar-link';
+import {localizeCollection} from '@/lib/vendure/localized-overrides';
 
 export async function NavbarCollections({ locale }: { locale: string }) {
     "use cache";
@@ -14,7 +14,7 @@ export async function NavbarCollections({ locale }: { locale: string }) {
 
     cacheTag(`navbar-collections-${locale}`);
 
-    const collections = await getTopCollections(locale);
+    const collections = (await getTopCollections(locale)).map((collection) => localizeCollection(collection, locale));
 
     return (
         <NavigationMenu>

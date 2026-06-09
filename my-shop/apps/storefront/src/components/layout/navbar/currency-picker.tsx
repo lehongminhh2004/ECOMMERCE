@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {useRouter} from '@/i18n/navigation';
 import {switchCurrency} from '@/lib/actions/switch-currency';
-import {useTransition} from 'react';
+import {useEffect, useState, useTransition} from 'react';
 
 interface CurrencyPickerProps {
     availableCurrencyCodes: string[];
@@ -22,8 +22,18 @@ export function CurrencyPicker({availableCurrencyCodes, activeCurrencyCode}: Cur
     const t = useTranslations('Navigation');
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const [selectedCurrencyCode, setSelectedCurrencyCode] = useState(activeCurrencyCode);
+
+    useEffect(() => {
+        setSelectedCurrencyCode(activeCurrencyCode);
+    }, [activeCurrencyCode]);
 
     const handleCurrencyChange = (currencyCode: string) => {
+        if (currencyCode === selectedCurrencyCode) {
+            return;
+        }
+
+        setSelectedCurrencyCode(currencyCode);
         startTransition(async () => {
             await switchCurrency(currencyCode);
             router.refresh();
@@ -38,7 +48,7 @@ export function CurrencyPicker({availableCurrencyCodes, activeCurrencyCode}: Cur
         <DropdownMenu>
             <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="gap-1.5" aria-label={t('switchCurrency')} />}>
                 <Coins className="size-4" />
-                <span>{activeCurrencyCode}</span>
+                <span>{selectedCurrencyCode}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 {availableCurrencyCodes.map((code) => (
@@ -48,7 +58,7 @@ export function CurrencyPicker({availableCurrencyCodes, activeCurrencyCode}: Cur
                         disabled={isPending}
                     >
                         <span>{code}</span>
-                        {activeCurrencyCode === code && <span className="ml-auto text-xs">✓</span>}
+                        {selectedCurrencyCode === code && <span className="ml-auto text-xs">✓</span>}
                     </DropdownMenuItem>
                 ))}
             </DropdownMenuContent>

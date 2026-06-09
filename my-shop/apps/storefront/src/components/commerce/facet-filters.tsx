@@ -11,7 +11,8 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/co
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { SearchProductsQuery } from "@/lib/vendure/queries";
-import {useTranslations} from 'next-intl';
+import {useLocale, useTranslations} from 'next-intl';
+import {getLocalizedFacetName, getLocalizedFacetValue} from '@/lib/vendure/localized-overrides';
 
 interface FacetFiltersProps {
     productDataPromise: Promise<{
@@ -85,6 +86,7 @@ function FilterContent({
 }
 
 export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
+    const locale = useLocale();
     const t = useTranslations('Filters');
     const result = use(productDataPromise);
     const searchResult = result?.data?.search;
@@ -101,7 +103,7 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
     }
 
     const facetGroups = searchResult?.facetValues?.reduce((acc: Record<string, FacetGroup>, item) => {
-        const facetName = item.facetValue.facet.name;
+        const facetName = getLocalizedFacetName(item.facetValue.facet.name, locale);
         if (!acc[facetName]) {
             acc[facetName] = {
                 id: item.facetValue.facet.id,
@@ -111,7 +113,7 @@ export function FacetFilters({ productDataPromise }: FacetFiltersProps) {
         }
         acc[facetName].values.push({
             id: item.facetValue.id,
-            name: item.facetValue.name,
+            name: getLocalizedFacetValue(item.facetValue.name, locale),
             count: item.count
         });
         return acc;
