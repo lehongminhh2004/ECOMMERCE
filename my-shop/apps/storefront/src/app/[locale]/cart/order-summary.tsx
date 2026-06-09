@@ -23,7 +23,7 @@ export async function OrderSummary({activeOrder}: { activeOrder: ActiveOrder }) 
         : 0;
 
     return (
-        <div className="border rounded-xl p-6 bg-card sticky top-24 shadow-sm">
+        <div className="border rounded-xl p-6 bg-card shadow-sm">
             <h2 className="text-xl font-bold mb-4">{t('orderSummary')}</h2>
 
             <div className="space-y-2.5 mb-4">

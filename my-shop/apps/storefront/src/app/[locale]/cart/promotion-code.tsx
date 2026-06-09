@@ -47,12 +47,12 @@ export function PromotionCode({
         startApplyTransition(async () => {
             const formData = new FormData();
             formData.set('code', normalizedCode);
-            try {
-                await applyPromotionCode(formData);
+            const result = await applyPromotionCode(formData);
+            if (result?.ok) {
                 setCode('');
-            } catch {
-                setError(t('invalidCode'));
+                return;
             }
+            setError(result?.error || t('invalidCode'));
         });
     };
 
@@ -65,7 +65,7 @@ export function PromotionCode({
     };
 
     return (
-        <Card className="mt-4 overflow-hidden">
+        <Card className="overflow-visible">
             <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                     <Tag className="h-4 w-4 text-primary"/>
@@ -104,7 +104,7 @@ export function PromotionCode({
                         ))}
 
                         {/* Allow adding another code */}
-                        <div className="flex gap-2 pt-1">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 pt-1">
                             <Input
                                 id="promo-code-input"
                                 type="text"
@@ -138,8 +138,8 @@ export function PromotionCode({
                         />
                     </div>
                 ) : (
-                    <div className="space-y-2">
-                        <div className="flex gap-2">
+                    <div className="space-y-3">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
                             <Input
                                 id="promo-code-input"
                                 type="text"
@@ -210,7 +210,7 @@ function CouponOptions({
                     {coupons.length}
                 </span>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
                 {coupons.map((coupon) => {
                     const isApplied = appliedCodes.has(coupon.code);
                     const label = coupon.discountLabel
@@ -219,7 +219,7 @@ function CouponOptions({
                     return (
                         <div
                             key={coupon.code}
-                            className="flex items-center justify-between gap-3 rounded-lg border bg-muted/25 p-2.5"
+                            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border bg-muted/25 p-2.5"
                         >
                             <button
                                 type="button"

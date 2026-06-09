@@ -54,7 +54,7 @@ export async function Cart() {
         <div className="grid lg:grid-cols-3 gap-8">
             <CartItems activeOrder={activeOrder}/>
 
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-4">
                 <OrderSummary activeOrder={activeOrder}/>
                 <PromotionCode activeOrder={activeOrder} availableCoupons={availableCoupons}/>
             </div>

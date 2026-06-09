@@ -27,16 +27,25 @@ export async function adjustQuantity(lineId: string, quantity: number) {
 
 export async function applyPromotionCode(formData: FormData) {
     const code = formData.get('code') as string;
-    if (!code) return;
-
-    const locale = await getLocale();
-    const currencyCode = await getActiveCurrencyCode(locale);
-    const {data} = await mutate(ApplyPromotionCodeMutation, {couponCode: code.trim().toUpperCase()}, {useAuthToken: true, languageCode: locale, currencyCode});
-    const result = (data as any)?.applyCouponCode;
-    if (!result || result.__typename !== 'Order') {
-        throw new Error(result?.message || 'Unable to apply promotion code');
+    const normalizedCode = code?.trim().toUpperCase();
+    if (!normalizedCode) {
+        return {ok: false, error: 'Missing promotion code'};
     }
-    updateTag('cart');
+
+    try {
+        const locale = await getLocale();
+        const currencyCode = await getActiveCurrencyCode(locale);
+        const {data} = await mutate(ApplyPromotionCodeMutation, {couponCode: normalizedCode}, {useAuthToken: true, languageCode: locale, currencyCode});
+        const result = (data as any)?.applyCouponCode;
+        if (!result || result.__typename !== 'Order') {
+            return {ok: false, error: result?.message || 'Unable to apply promotion code'};
+        }
+        updateTag('cart');
+        return {ok: true};
+    } catch (error) {
+        console.error('[Cart] Failed to apply promotion code:', error);
+        return {ok: false, error: 'Unable to apply promotion code'};
+    }
 }
 
 export async function removePromotionCode(formData: FormData) {
