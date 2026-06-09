@@ -84,7 +84,7 @@ export const config: VendureConfig = {
     // need to be updated. See the "Migrations" section in README.md.
     customFields: {},
     plugins: [
-        GraphiqlPlugin.init(),
+        ...(IS_DEV ? [GraphiqlPlugin.init()] : []),
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),

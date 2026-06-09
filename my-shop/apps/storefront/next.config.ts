@@ -3,6 +3,25 @@ import createNextIntlPlugin from 'next-intl/plugin';
 import path from 'node:path';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const isDev = process.env.NODE_ENV !== 'production';
+const securityHeaders = [
+    {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff',
+    },
+    {
+        key: 'X-Frame-Options',
+        value: 'DENY',
+    },
+    {
+        key: 'Referrer-Policy',
+        value: 'strict-origin-when-cross-origin',
+    },
+    {
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=(), payment=()',
+    },
+];
 const remoteImagePatterns = [
     process.env.NEXT_PUBLIC_VENDURE_SHOP_API_URL,
     process.env.VENDURE_SHOP_API_URL,
@@ -28,9 +47,17 @@ const remoteImagePatterns = [
 const nextConfig: NextConfig = {
     output: 'standalone',
     cacheComponents: true,
+    async headers() {
+        return [
+            {
+                source: '/:path*',
+                headers: securityHeaders,
+            },
+        ];
+    },
     images: {
         // This is necessary to display images from your local Vendure instance
-        dangerouslyAllowLocalIP: true,
+        dangerouslyAllowLocalIP: isDev,
         remotePatterns: [
             {
                 hostname: 'readonlydemo.vendure.io',
@@ -38,23 +65,20 @@ const nextConfig: NextConfig = {
             {
                 hostname: 'demo.vendure.io'
             },
-            {
-                hostname: 'localhost'
-            },
-            {
-                hostname: 'vendure_server'
-            },
-            {
-                hostname: 'payload_cms'
-            },
+            ...(isDev ? [
+                {
+                    hostname: 'localhost'
+                },
+                {
+                    hostname: 'vendure_server'
+                },
+                {
+                    hostname: 'payload_cms'
+                },
+            ] : []),
             {
                 protocol: 'https',
                 hostname: 'res.cloudinary.com'
-            },
-            // Render.com deployed services — covers all *.onrender.com subdomains
-            {
-                protocol: 'https',
-                hostname: '**.onrender.com',
             },
             ...remoteImagePatterns,
         ],
