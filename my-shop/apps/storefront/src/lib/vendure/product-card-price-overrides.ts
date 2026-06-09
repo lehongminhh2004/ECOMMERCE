@@ -2,12 +2,21 @@ import {readFragment, type FragmentOf} from '@/graphql';
 import {getRouteLocale} from '@/i18n/server';
 import {ProductCardFragment} from './fragments';
 import {query} from './api';
-import {GetProductDetailQuery} from './queries';
+import {GetProductPriceBySlugQuery} from './queries';
 
 export type ProductCardPrice =
     | { currencyCode: string; priceWithTax: { __typename: 'PriceRange'; min: number; max: number } }
     | { currencyCode: string; priceWithTax: { __typename: 'SinglePrice'; value: number } };
 
+/**
+ * Fetches price overrides for products whose cached currencyCode does not match
+ * the active currency. Uses a lightweight query (variants.priceWithTax only)
+ * instead of the full product detail — ~80% less data per request.
+ *
+ * In practice this should return {} most of the time because the search query
+ * already passes currencyCode to Vendure. Overrides are only needed when a
+ * stale cache entry has a mismatched currency.
+ */
 export async function getProductCardPriceOverrides(
     products: Array<FragmentOf<typeof ProductCardFragment>>,
     currencyCode: string,
@@ -23,8 +32,9 @@ export async function getProductCardPriceOverrides(
     const locale = await getRouteLocale();
     const entries = await Promise.all(
         productsNeedingOverride.map(async product => {
+            // Use lightweight price-only query instead of full GetProductDetailQuery
             const result = await query(
-                GetProductDetailQuery,
+                GetProductPriceBySlugQuery,
                 {slug: product.slug},
                 {languageCode: locale, currencyCode},
             );

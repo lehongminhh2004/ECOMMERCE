@@ -25,6 +25,7 @@ export function ProductCard({product: productProp, priceOverride}: ProductCardPr
     return (
         <Link
             href={`/product/${product.slug}`}
+            prefetch={false}
             className="group block bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
         >
             <div className="aspect-square relative bg-muted overflow-hidden">

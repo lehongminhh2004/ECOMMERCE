@@ -46,14 +46,14 @@ export async function Navbar({ locale }: { locale: string }) {
             <div className="container mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center gap-8">
-                        <Suspense>
+                        <Suspense fallback={<div className="h-8 w-8 rounded-md bg-muted animate-pulse md:hidden" />}>
                             <MobileNavWrapper />
                         </Suspense>
                         <NavigationLink href="/" className="text-xl font-bold">
                             <Image src="/vendure.svg" alt="Vendure" width={40} height={27} className="h-6 w-auto dark:invert" />
                         </NavigationLink>
                         <nav className="hidden md:flex items-center gap-6">
-                            <Suspense>
+                            <Suspense fallback={<div className="h-5 w-20 rounded bg-muted animate-pulse" />}>
                                 <NavbarCollections locale={locale} />
                             </Suspense>
                             {navigationLinks.length > 0 && (
@@ -77,16 +77,16 @@ export async function Navbar({ locale }: { locale: string }) {
                                 <SearchInput/>
                             </Suspense>
                         </div>
-                        <Suspense>
+                        <Suspense fallback={<div className="h-8 w-8 rounded-md bg-muted animate-pulse" />}>
                             <LanguagePicker />
                         </Suspense>
-                        <Suspense>
+                        <Suspense fallback={<div className="h-8 w-14 rounded-md bg-muted animate-pulse" />}>
                             <CurrencyPickerWrapper locale={locale} />
                         </Suspense>
-                        <Suspense>
+                        <Suspense fallback={<div className="h-8 w-8 rounded-md bg-muted animate-pulse" />}>
                             <ThemeSwitcher />
                         </Suspense>
-                        <Suspense>
+                        <Suspense fallback={<div className="h-8 w-8 rounded-md bg-muted animate-pulse" />}>
                             <NavbarCart/>
                         </Suspense>
                         <Suspense fallback={<NavbarUserSkeleton />}>

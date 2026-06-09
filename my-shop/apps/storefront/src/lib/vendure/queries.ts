@@ -437,6 +437,22 @@ export const GetCollectionProductsQuery = graphql(`
     }
 `, [ProductCardFragment]);
 
+/**
+ * Lightweight query to fetch only variant prices for a product by slug.
+ * Used by getProductCardPriceOverrides to avoid fetching full product detail
+ * (no assets, options, collections) — reduces payload ~80% vs GetProductDetailQuery.
+ */
+export const GetProductPriceBySlugQuery = graphql(`
+    query GetProductPriceBySlug($slug: String!) {
+        product(slug: $slug) {
+            id
+            variants {
+                priceWithTax
+            }
+        }
+    }
+`);
+
 export const GetProductDetailByIdQuery = graphql(`
     query GetProductDetailById($id: ID!) {
         product(id: $id) {

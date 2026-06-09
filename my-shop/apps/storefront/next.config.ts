@@ -58,6 +58,13 @@ const nextConfig: NextConfig = {
     images: {
         // This is necessary to display images from your local Vendure instance
         dangerouslyAllowLocalIP: isDev,
+        // Serve AVIF first (smaller than WebP ~20%), fallback to WebP
+        formats: ['image/avif', 'image/webp'],
+        // Cache optimized images for 7 days on CDN/Vercel edge
+        minimumCacheTTL: 60 * 60 * 24 * 7,
+        // Aligned with product grid layout breakpoints
+        deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+        imageSizes: [64, 128, 256, 384, 512],
         remotePatterns: [
             {
                 hostname: 'readonlydemo.vendure.io',

@@ -1,13 +1,14 @@
-import {ProductCarousel} from "@/components/commerce/product-carousel";
 import {getRouteLocale} from "@/i18n/server";
 import {cacheLife, cacheTag} from "next/cache";
 import {getActiveCurrencyCode} from '@/lib/currency-server';
 import {query} from "@/lib/vendure/api";
 import {SearchProductsQuery} from "@/lib/vendure/queries";
-import { Link } from '@/i18n/navigation';
+import {Link} from '@/i18n/navigation';
 import {ArrowRight} from "lucide-react";
 import {getTranslations} from 'next-intl/server';
 import {getProductCardPriceOverrides} from '@/lib/vendure/product-card-price-overrides';
+// LazyProductCarousel là Client Component wrapper xử lý dynamic import + ssr:false
+import {LazyProductCarousel} from '@/components/commerce/lazy-product-carousel';
 
 async function fetchFeaturedProducts(currencyCode: string, fetchOptions?: RequestInit) {
     const locale = await getRouteLocale();
@@ -52,7 +53,7 @@ export async function FeaturedProducts() {
 
     return (
         <div>
-            <ProductCarousel
+            <LazyProductCarousel
                 title={t('featuredProducts')}
                 products={products}
                 priceOverrides={priceOverrides}
