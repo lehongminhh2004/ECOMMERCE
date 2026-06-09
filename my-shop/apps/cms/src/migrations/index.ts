@@ -3,6 +3,7 @@ import * as migration_20260607_104322_add_locales from './20260607_104322_add_lo
 import * as migration_20260608_add_coupon_code from './20260608_add_coupon_code';
 import * as migration_20260609_fix_promotion_content_schema from './20260609_fix_promotion_content_schema';
 import * as migration_20260609_fix_posts_localized_discount_label from './20260609_fix_posts_localized_discount_label';
+import * as migration_20260609_repair_vietnamese_cms_text from './20260609_repair_vietnamese_cms_text';
 
 export const migrations = [
   {
@@ -29,5 +30,10 @@ export const migrations = [
     up: migration_20260609_fix_posts_localized_discount_label.up,
     down: migration_20260609_fix_posts_localized_discount_label.down,
     name: '20260609_fix_posts_localized_discount_label',
+  },
+  {
+    up: migration_20260609_repair_vietnamese_cms_text.up,
+    down: migration_20260609_repair_vietnamese_cms_text.down,
+    name: '20260609_repair_vietnamese_cms_text',
   },
 ];
