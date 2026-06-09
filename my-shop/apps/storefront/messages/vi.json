@@ -123,6 +123,8 @@
     "remove": "Xóa",
     "enterCode": "Nhập mã (VD: SALE20)",
     "apply": "Áp dụng",
+    "applied": "Đã áp dụng",
+    "availableCoupons": "Mã hiện có",
     "sku": "SKU: {sku}",
     "youSave": "Bạn đang tiết kiệm được",
     "invalidCode": "Mã không hợp lệ hoặc đã hết hạn",

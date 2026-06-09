@@ -13,22 +13,40 @@ type ActiveOrder = {
     couponCodes?: string[] | null;
 };
 
-export function PromotionCode({activeOrder}: { activeOrder: ActiveOrder }) {
+type CouponOption = {
+    code: string;
+    title: string;
+    discountLabel?: string | null;
+    discountPercent?: number | null;
+    expiresAt?: string | null;
+};
+
+export function PromotionCode({
+    activeOrder,
+    availableCoupons = [],
+}: {
+    activeOrder: ActiveOrder;
+    availableCoupons?: CouponOption[];
+}) {
     const t = useTranslations('Cart');
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const [isPendingApply, startApplyTransition] = useTransition();
     const [isPendingRemove, startRemoveTransition] = useTransition();
 
-    const handleApply = async () => {
-        if (!code.trim()) {
+    const appliedCodes = new Set((activeOrder.couponCodes || []).map((c) => c.toUpperCase()));
+    const hasCodes = appliedCodes.size > 0;
+
+    const handleApply = async (selectedCode = code) => {
+        const normalizedCode = selectedCode.trim().toUpperCase();
+        if (!normalizedCode) {
             setError(t('enterCode'));
             return;
         }
         setError('');
         startApplyTransition(async () => {
             const formData = new FormData();
-            formData.set('code', code.trim().toUpperCase());
+            formData.set('code', normalizedCode);
             try {
                 await applyPromotionCode(formData);
                 setCode('');
@@ -45,8 +63,6 @@ export function PromotionCode({activeOrder}: { activeOrder: ActiveOrder }) {
             await removePromotionCode(formData);
         });
     };
-
-    const hasCodes = activeOrder.couponCodes && activeOrder.couponCodes.length > 0;
 
     return (
         <Card className="mt-4 overflow-hidden">
@@ -102,7 +118,7 @@ export function PromotionCode({activeOrder}: { activeOrder: ActiveOrder }) {
                                 className="flex-1 font-mono text-sm h-9"
                             />
                             <Button
-                                onClick={handleApply}
+                                onClick={() => handleApply()}
                                 disabled={isPendingApply || !code.trim()}
                                 size="sm"
                                 className="h-9"
@@ -113,6 +129,13 @@ export function PromotionCode({activeOrder}: { activeOrder: ActiveOrder }) {
                                 }
                             </Button>
                         </div>
+                        <CouponOptions
+                            coupons={availableCoupons}
+                            appliedCodes={appliedCodes}
+                            isPending={isPendingApply}
+                            onSelect={setCode}
+                            onApply={handleApply}
+                        />
                     </div>
                 ) : (
                     <div className="space-y-2">
@@ -130,7 +153,7 @@ export function PromotionCode({activeOrder}: { activeOrder: ActiveOrder }) {
                                 className={`flex-1 font-mono text-sm ${error ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                             />
                             <Button
-                                onClick={handleApply}
+                                onClick={() => handleApply()}
                                 disabled={isPendingApply || !code.trim()}
                             >
                                 {isPendingApply
@@ -146,9 +169,91 @@ export function PromotionCode({activeOrder}: { activeOrder: ActiveOrder }) {
                                 {error}
                             </p>
                         )}
+                        <CouponOptions
+                            coupons={availableCoupons}
+                            appliedCodes={appliedCodes}
+                            isPending={isPendingApply}
+                            onSelect={setCode}
+                            onApply={handleApply}
+                        />
                     </div>
                 )}
             </CardContent>
         </Card>
+    );
+}
+
+function CouponOptions({
+    coupons,
+    appliedCodes,
+    isPending,
+    onSelect,
+    onApply,
+}: {
+    coupons: CouponOption[];
+    appliedCodes: Set<string>;
+    isPending: boolean;
+    onSelect: (code: string) => void;
+    onApply: (code: string) => void;
+}) {
+    const t = useTranslations('Cart');
+
+    if (coupons.length === 0) return null;
+
+    return (
+        <div className="pt-3 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-medium text-muted-foreground">
+                    {t('availableCoupons')}
+                </p>
+                <span className="text-[11px] text-muted-foreground">
+                    {coupons.length}
+                </span>
+            </div>
+            <div className="space-y-2">
+                {coupons.map((coupon) => {
+                    const isApplied = appliedCodes.has(coupon.code);
+                    const label = coupon.discountLabel
+                        || (coupon.discountPercent ? `${coupon.discountPercent}% OFF` : null);
+
+                    return (
+                        <div
+                            key={coupon.code}
+                            className="flex items-center justify-between gap-3 rounded-lg border bg-muted/25 p-2.5"
+                        >
+                            <button
+                                type="button"
+                                onClick={() => onSelect(coupon.code)}
+                                className="min-w-0 flex-1 text-left"
+                            >
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                    <span className="font-mono text-sm font-semibold tracking-wider">
+                                        {coupon.code}
+                                    </span>
+                                    {label && (
+                                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                                            {label}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                                    {coupon.title}
+                                </p>
+                            </button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant={isApplied ? 'secondary' : 'outline'}
+                                disabled={isPending || isApplied}
+                                onClick={() => onApply(coupon.code)}
+                                className="h-8 shrink-0"
+                            >
+                                {isApplied ? t('applied') : t('apply')}
+                            </Button>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
     );
 }

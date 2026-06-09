@@ -123,6 +123,8 @@
     "remove": "Remove",
     "enterCode": "Enter code (e.g. SALE20)",
     "apply": "Apply",
+    "applied": "Applied",
+    "availableCoupons": "Available coupons",
     "sku": "SKU: {sku}",
     "youSave": "You're saving",
     "invalidCode": "Invalid or expired promo code",

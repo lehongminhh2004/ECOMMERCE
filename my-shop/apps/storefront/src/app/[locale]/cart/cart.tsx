@@ -6,6 +6,7 @@ import {getActiveCurrencyCode} from "@/lib/currency-server";
 import {cacheLife, cacheTag} from "next/cache";
 import {query} from "@/lib/vendure/api";
 import {GetActiveOrderQuery} from "@/lib/vendure/queries";
+import {getPosts} from "@/lib/payload/api";
 
 export async function Cart() {
     "use cache: private"
@@ -21,6 +22,28 @@ export async function Cart() {
     });
 
     const activeOrder = data.activeOrder;
+    const posts = await getPosts();
+    const now = Date.now();
+    const availableCoupons = Array.from(
+        new Map(
+            posts
+                .filter((post) => {
+                    if (!post.couponCode?.trim()) return false;
+                    if (!post.expiresAt) return true;
+                    return new Date(post.expiresAt).getTime() > now;
+                })
+                .map((post) => {
+                    const code = post.couponCode!.trim().toUpperCase();
+                    return [code, {
+                        code,
+                        title: post.title,
+                        discountLabel: post.discountLabel,
+                        discountPercent: post.discountPercent,
+                        expiresAt: post.expiresAt,
+                    }];
+                })
+        ).values()
+    );
 
     // Handle empty cart case
     if (!activeOrder || activeOrder.lines.length === 0) {
@@ -33,7 +56,7 @@ export async function Cart() {
 
             <div className="lg:col-span-1">
                 <OrderSummary activeOrder={activeOrder}/>
-                <PromotionCode activeOrder={activeOrder}/>
+                <PromotionCode activeOrder={activeOrder} availableCoupons={availableCoupons}/>
             </div>
         </div>
     )
