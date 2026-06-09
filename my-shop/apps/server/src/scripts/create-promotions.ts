@@ -125,14 +125,24 @@ async function createPromotion(authToken: string, promotion: {
         }
     `, {
         input: {
-            name: promotion.name,
             couponCode: promotion.couponCode,
-            description: promotion.description,
             enabled: true,
             conditions: promotion.conditions,
             actions: promotion.actions,
             startsAt: null,
             endsAt: null,
+            translations: [
+                {
+                    languageCode: 'en',
+                    name: promotion.name,
+                    description: promotion.description || promotion.name,
+                },
+                {
+                    languageCode: 'vi',
+                    name: promotion.name,
+                    description: promotion.description || promotion.name,
+                },
+            ],
         }
     }, authToken) as { createPromotion?: { id?: string; name?: string; couponCode?: string; errorCode?: string; message?: string } };
 
