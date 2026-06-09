@@ -27,9 +27,7 @@ The old GHCR + SSH + Docker Compose + Nginx deployment path has been removed.
 - `rules/`: architecture, ports, deployment/runtime and styling rules.
 - `../render.yaml`: Render Blueprint for Vendure and Payload CMS.
 - `.env.free-tier.example`: environment variable reference for Vercel and Render.
-- `docs/free-tier-deployment-guide.md`: step-by-step deployment guide.
-- `docs/agent-handoff-free-tier-deploy.md`: context handoff for future agents.
-- `.github/workflows/ci.yml`: lint, typecheck and build validation.
+- `../.github/workflows/ci.yml`: lint, typecheck and build validation.
 
 ## Local Development
 
@@ -87,4 +85,4 @@ node apps/server/dist/index.js --run-migrations
 - Render uses the Vendure and Payload Dockerfiles.
 - Vercel builds the Storefront from the monorepo.
 - `RUN_WORKER_IN_PROCESS=true` is intended only for single-instance Render Free deployment.
-- Cloudinary automatic upload adapters are not implemented yet; Storefront is already allowed to render `res.cloudinary.com` images.
+- Cloudinary is used for durable Vendure and Payload media storage in production.

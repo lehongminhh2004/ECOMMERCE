@@ -1,88 +1,52 @@
-<p align="center">
-  <a href="https://vendure.io">
-    <img alt="Vendure logo" height="60" width="auto" src="https://a.storyblok.com/f/328257/699x480/8dbb4c7a3c/logo-icon.png/m/0x80">
-  </a>
-</p>
-<h1 align="center">
-  Vendure Next.js Storefront Starter
-</h1>
-<h3 align="center">
-    A Next.js 16 storefront starter for Vendure headless commerce
-</h3>
-<p align="center">
- Use as a foundation to build upon, take inspiration from, or learn the ergonomics of the Vendure Shop API.
-</p>
-<h4 align="center">
-  <a href="https://next.vendure.io">Demo</a> |
-  <a href="https://docs.vendure.io">Documentation</a> |
-  <a href="https://vendure.io">Website</a>
-</h4>
+# Storefront
 
-## Features
+Next.js customer storefront for the ecommerce system.
 
-**Authentication & Accounts**
-- Customer registration with email verification
-- Login/logout with session management
-- Password reset & change password
-- Email address updates with verification
+## Responsibility
 
-**Customer Account**
-- Profile management (name, email, password)
-- Address management (create, update, delete, set default)
-- Order history with pagination & detailed order views
+- Public shopping experience
+- Product listing, search, collections, and product detail pages
+- Cart and checkout flows
+- Customer account pages
+- Blog and CMS-driven marketing pages
+- English and Vietnamese routes
+- Locale-aware currency display: English defaults to USD, Vietnamese defaults to VND
 
-**Product Browsing**
-- Collections & featured products
-- Product detail pages with variants & galleries
-- Full-text search with faceted filtering
-- Pagination & sorting
+## Data Sources
 
-**Shopping Cart**
-- Add/remove items, adjust quantities
-- Promotion code support
-- Real-time cart updates with totals
+- Vendure Shop API for products, prices, carts, orders, customers, promotions, and checkout.
+- Payload CMS API for pages, navigation, footer, blog posts, and banners.
+- Cloudinary for production media delivery.
 
-**Checkout**
-- Multi-step flow: shipping address, delivery method, payment, review
-- Saved address selection
-- Shipping method selection
-- Payment integration
+## Local Development
 
-**Order Management**
-- Order confirmation page
-- Order tracking with status
-- Detailed order information
-
-**Internationalization**
-- Multi-language support via next-intl (English & German out of the box)
-- Multi-currency support with persistent currency selection
-- Locale-aware price formatting
-
-## Getting Started
-
-First, run the development server:
+From the `my-shop` workspace root:
 
 ```bash
-npm run dev
+npm run dev -w storefront
 ```
 
-Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
+Default local URL:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3001
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build
 
-## Learn More
+```bash
+npm run build -w storefront
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Production
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Production runs on Vercel.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Public URL:
 
-## Deploy on Vercel
+```text
+https://ecommerce-t6vv.vercel.app
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Vercel deploys only the customer-facing storefront. Vendure Admin and Payload CMS Admin are separate Render services.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
