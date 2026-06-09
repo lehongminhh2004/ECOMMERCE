@@ -16,6 +16,10 @@ interface ProductCarouselClientProps {
 export function ProductCarousel({title, products, priceOverrides}: ProductCarouselClientProps) {
     const id = useId();
 
+    if (products.length === 0) {
+        return null;
+    }
+
     return (
         <section className="py-12 md:py-16">
             <div className="container mx-auto px-4">

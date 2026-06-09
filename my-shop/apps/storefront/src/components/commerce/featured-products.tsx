@@ -9,23 +9,28 @@ import {ArrowRight} from "lucide-react";
 import {getTranslations} from 'next-intl/server';
 import {getProductCardPriceOverrides} from '@/lib/vendure/product-card-price-overrides';
 
-async function getFeaturedCollectionProducts(currencyCode: string) {
-    'use cache'
-    cacheLife('days')
-
+async function fetchFeaturedProducts(currencyCode: string, fetchOptions?: RequestInit) {
     const locale = await getRouteLocale();
-    cacheTag(`featured-${locale}-${currencyCode}`);
-    cacheTag('products');
-
     const result = await query(SearchProductsQuery, {
         input: {
             take: 12,
             skip: 0,
             groupByProduct: true
         }
-    }, {languageCode: locale, currencyCode});
+    }, {languageCode: locale, currencyCode, fetch: fetchOptions});
 
     return result.data?.search?.items || [];
+}
+
+async function getFeaturedCollectionProducts(currencyCode: string) {
+    'use cache'
+    cacheLife('hours')
+
+    const locale = await getRouteLocale();
+    cacheTag(`featured-${locale}-${currencyCode}`);
+    cacheTag('products');
+
+    return fetchFeaturedProducts(currencyCode);
 }
 
 
@@ -33,7 +38,16 @@ export async function FeaturedProducts() {
     const locale = await getRouteLocale();
     const currencyCode = await getActiveCurrencyCode(locale);
     const t = await getTranslations({locale, namespace: 'Product'});
-    const products = await getFeaturedCollectionProducts(currencyCode);
+    let products = await getFeaturedCollectionProducts(currencyCode);
+
+    if (products.length === 0) {
+        products = await fetchFeaturedProducts(currencyCode, {cache: 'no-store'});
+    }
+
+    if (products.length === 0) {
+        return null;
+    }
+
     const priceOverrides = await getProductCardPriceOverrides(products, currencyCode);
 
     return (
